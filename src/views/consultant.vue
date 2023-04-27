@@ -17,7 +17,7 @@ img {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  max-width: 30vw;
+  max-height: 30vh;
 }
 .van-button {
   position: absolute;
