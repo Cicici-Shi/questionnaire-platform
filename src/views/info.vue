@@ -24,10 +24,6 @@
     </div>
     <p>4. 您在真人投资顾问的帮助下进行股票投资的经验如何？</p>
     <van-rate v-model="exp" :count="10" void-icon="circle" icon="checked" />
-    <div class="rate">
-      <div>非常少</div>
-      <div>非常多</div>
-    </div>
     <p>5. 您以往股票投资亏损的次数占股票投资总次数的比例约为？（单位：%）</p>
     <van-cell-group inset>
       <van-field v-model="percent" placeholder="请输入" />
@@ -55,10 +51,6 @@ let percent = ref('')
   display: flex;
   justify-content: space-evenly;
 }
-.rate {
-  display: flex;
-  justify-content: space-between;
-}
 .van-button {
   position: fixed;
   right: 0;
@@ -78,6 +70,23 @@ let percent = ref('')
     display: flex;
     align-items: center;
     margin: 0 2px;
+  }
+}
+
+.van-rate {
+  position: relative;
+  margin-bottom: 27px;
+  &::before {
+    content: '非常少';
+    position: absolute;
+    left: 0;
+    bottom: -25px;
+  }
+  &::after {
+    content: '非常多';
+    position: absolute;
+    right: 0;
+    bottom: -25px;
   }
 }
 </style>

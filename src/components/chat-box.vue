@@ -14,7 +14,7 @@
         <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
           {{ explain }}
         </p>
-        <van-radio-group v-if="type === 'radio'" v-model="checked">
+        <van-radio-group v-if="type === 'radio'" v-model="value">
           <van-radio v-for="choice in content" :key="choice" :name="choice">{{
             choice
           }}</van-radio>
@@ -22,9 +22,14 @@
         <van-cell-group v-if="type === 'input'" inset>
           <van-field v-model="value" placeholder="请输入" />
         </van-cell-group>
-        <div class="next" v-if="type != 'consultant'" @click="handleNewClick">
-          下一题
-        </div>
+        <van-button
+          class="next"
+          v-if="type != 'consultant'"
+          @click="handleNewClick"
+          color="#5997e9"
+          :disabled="!value"
+          >下一题</van-button
+        >
       </div>
     </div>
   </div>
@@ -39,7 +44,6 @@ const props = defineProps({
 })
 const emit = defineEmits(['newBtnClick'])
 
-let checked = ref('')
 let value = ref('')
 const handleNewClick = () => {
   emit('newBtnClick')
@@ -87,17 +91,11 @@ const handleNewClick = () => {
   margin: 0;
 }
 .next {
-  opacity: 0.5;
-  background: #5997e9;
   color: #fff;
   float: right;
   margin-top: 10px;
-  padding: 0.3rem;
+  padding: 0.1em 0.3rem;
   border-radius: 0.2rem;
-
-  &:hover {
-    opacity: 1;
-    cursor: pointer;
-  }
+  height: 32px;
 }
 </style>

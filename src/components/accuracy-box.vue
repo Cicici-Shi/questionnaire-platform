@@ -5,10 +5,6 @@
     </p>
     <template v-if="type === 'rate'">
       <van-rate v-model="value" :count="10" void-icon="circle" icon="checked" />
-      <div class="rate">
-        <div>不真实</div>
-        <div>完全真实</div>
-      </div>
     </template>
     <template v-if="type === 'radio'">
       <van-radio-group v-model="checked">
@@ -32,9 +28,21 @@ let value = ref(0)
 let checked = ref('')
 </script>
 
-<style scoped>
-.rate {
-  display: flex;
-  justify-content: space-between;
+<style scoped lang="less">
+.van-rate {
+  position: relative;
+  margin-bottom: 15px;
+  &::before {
+    content: '不真实';
+    position: absolute;
+    left: 0;
+    bottom: -25px;
+  }
+  &::after {
+    content: '真实';
+    position: absolute;
+    right: 0;
+    bottom: -25px;
+  }
 }
 </style>

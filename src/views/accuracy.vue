@@ -18,6 +18,10 @@
 </template>
 
 <script setup>
+import { onBeforeMount } from 'vue'
+onBeforeMount(() => {
+  window.scrollTo(0, 0)
+})
 let accuracyConfig = [
   {
     type: 'rate',
