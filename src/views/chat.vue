@@ -79,63 +79,72 @@ const chatConfig = [
         type: 'input'
       }
     ]
+  },
+  {
+    id: 4,
+    chat: [
+      {
+        type: 'consultant',
+        content: '4. 您投资时最关注的是？',
+        explain: '(这有助于我们平衡您的预期风险和回报。)'
+      },
+      {
+        type: 'radio',
+        content: [
+          '收益最大化',
+          '损失最小化',
+          '“收益最大化” 和 “损失最小化” 两者同等重要'
+        ]
+      }
+    ]
+  },
+  {
+    id: 5,
+    chat: [
+      {
+        type: 'consultant',
+        content: '5. 您目前的就业情况是:'
+      },
+      {
+        type: 'radio',
+        content: [
+          '在职（全职或兼职）',
+          '自由职业者',
+          '全职妈妈或爸爸',
+          '学生',
+          '待业',
+          '退休'
+        ]
+      }
+    ]
   }
-  // {
-  //   id: 4,
-  //   chat: [
-  //     {
-  //       type: 'consultant',
-  //       content: '4. 您投资时最关注的是？',
-  //       explain: '(这有助于我们平衡您的预期风险和回报。)'
-  //     },
-  //     {
-  //       type: 'radio',
-  //       content: [
-  //         '收益最大化',
-  //         '损失最小化',
-  //         '“收益最大化” 和 “损失最小化” 两者同等重要'
-  //       ]
-  //     }
-  //   ]
-  // },
-  // {
-  //   id: 5,
-  //   chat: [
-  //     {
-  //       type: 'consultant',
-  //       content: '5. 您目前的就业情况是:'
-  //     },
-  //     {
-  //       type: 'radio',
-  //       content: [
-  //         '在职（全职或兼职）',
-  //         '自由职业者',
-  //         '全职妈妈或爸爸',
-  //         '学生',
-  //         '待业',
-  //         '退休'
-  //       ]
-  //     }
-  //   ]
-  // }
 ]
 let current = ref(0)
 let currentChat = ref(chatConfig[0].chat)
 const disable = ref(false)
 
 let handleNewData = () => {
-  console.log(current.value)
-  console.log(chatConfig.length - 1)
   current.value++
 
-  currentChat.value.push(...chatConfig[current.value].chat)
-  if (current.value === chatConfig.length - 1) {
-    disable.value = true
-  }
+  let i = 0
+  currentChat.value.push(chatConfig[current.value].chat[i])
+  i++
+  setTimeout(() => {
+    while (i < chatConfig[current.value].chat.length) {
+      currentChat.value.push(chatConfig[current.value].chat[i])
+      i++
+      window.scrollTo(0, document.body.scrollHeight)
 
-  nextTick(() => {
-    window.scrollTo(0, document.body.scrollHeight)
-  })
+      nextTick(() => {
+        window.scrollTo(0, document.body.scrollHeight)
+      })
+    }
+    Promise.resolve().then(() => {
+      if (current.value === chatConfig.length - 1) {
+        disable.value = true
+      }
+    })
+  }, 1000)
 }
 
 // function submit(page) {
