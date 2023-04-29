@@ -1,14 +1,28 @@
 <template>
-  <section class="top"></section>
-  <div class="chat" v-for="item in currentChat" :key="item.content">
-    <ChatBox :type="item.type" :content="item.content"></ChatBox>
+  <div id="chatContainer">
+    <section class="top name">HMS Investments</section>
+    <div
+      class="chat"
+      :class="{ disable: disable }"
+      v-for="item in currentChat"
+      :key="item.content"
+    >
+      <ChatBox
+        :type="item.type"
+        :content="item.content"
+        :explain="item.explain"
+        @newBtnClick="handleNewData"
+      ></ChatBox>
+    </div>
+    <van-button v-if="disable" type="primary" @click="submit" to="/accuracy"
+      >下一页<van-icon name="guide-o"
+    /></van-button>
   </div>
-  <van-button type="primary" @click="submit" to="/accuracy"
-    >下一页<van-icon name="guide-o"
-  /></van-button>
 </template>
 
 <script setup>
+import { ref, nextTick } from 'vue'
+
 const chatConfig = [
   {
     id: 1,
@@ -16,7 +30,7 @@ const chatConfig = [
       {
         type: 'consultant',
         content:
-          '客户您好！我是 HMS Investments 的投资顾问王经理，专门面向个人客户进行服务。我有 XX 年的投资服务经验，累计为 XX 位顾客制定了投资计划。下面我将通过一些问题了解您的个人情况，以为您制定合适的投资组合'
+          '客户您好！我是 HMS Investments 的投资顾问王经理，专门面向个人客户进行服务。我有 XX 年的投资服务经验，累计为 XX 位顾客制定了投资计划。下面我将通过一些问题了解您的个人情况，以为您制定合适的投资组合。'
       },
       {
         type: 'consultant',
@@ -25,7 +39,7 @@ const chatConfig = [
       },
       {
         type: 'consultant',
-        content: '1. 如果您的投资组合在一个月内损失了 10%，您会怎么做'
+        content: '1. 如果您的投资组合在一个月内损失了 10%，您会怎么做？'
       },
       {
         type: 'radio',
@@ -35,9 +49,6 @@ const chatConfig = [
           '我什么都不做',
           '我会买进更多'
         ]
-      },
-      {
-        type: 'input'
       }
     ]
   },
@@ -68,9 +79,74 @@ const chatConfig = [
         type: 'input'
       }
     ]
+  },
+  {
+    id: 4,
+    chat: [
+      {
+        type: 'consultant',
+        content: '4. 您投资时最关注的是？',
+        explain: '(这有助于我们平衡您的预期风险和回报。)'
+      },
+      {
+        type: 'radio',
+        content: [
+          '收益最大化',
+          '损失最小化',
+          '“收益最大化” 和 “损失最小化” 两者同等重要'
+        ]
+      }
+    ]
+  },
+  {
+    id: 5,
+    chat: [
+      {
+        type: 'consultant',
+        content: '5. 您目前的就业情况是:'
+      },
+      {
+        type: 'radio',
+        content: [
+          '在职（全职或兼职）',
+          '自由职业者',
+          '全职妈妈或爸爸',
+          '学生',
+          '待业',
+          '退休'
+        ]
+      }
+    ]
   }
 ]
-let currentChat = chatConfig[0].chat
+let current = ref(0)
+let currentChat = ref(chatConfig[0].chat)
+const disable = ref(false)
+
+let handleNewData = () => {
+  current.value++
+
+  let i = 0
+  currentChat.value.push(chatConfig[current.value].chat[i])
+  i++
+  setTimeout(() => {
+    while (i < chatConfig[current.value].chat.length) {
+      currentChat.value.push(chatConfig[current.value].chat[i])
+      i++
+      window.scrollTo(0, document.body.scrollHeight)
+
+      nextTick(() => {
+        window.scrollTo(0, document.body.scrollHeight)
+      })
+    }
+    Promise.resolve().then(() => {
+      if (current.value === chatConfig.length - 1) {
+        disable.value = true
+      }
+    })
+  }, 1000)
+}
+
 // function submit(page) {
 //   document.cookie = 'lastQuestion=' + page + ';'
 //   this.$router.push({
@@ -80,12 +156,6 @@ let currentChat = chatConfig[0].chat
 </script>
 
 <style scoped lang="less">
-.top {
-  height: 37px;
-  position: fixed;
-  right: 0;
-  top: 0;
-}
 .van-button {
   position: fixed;
   right: 0;
@@ -94,8 +164,16 @@ let currentChat = chatConfig[0].chat
 }
 .chat {
   color: #343541;
-  &:last-child {
-    color: red;
-  }
+}
+</style>
+<style>
+.chat .next {
+  display: none;
+}
+.chat:last-of-type .next {
+  display: block;
+}
+.chat:last-of-type.disable .next {
+  display: none;
 }
 </style>

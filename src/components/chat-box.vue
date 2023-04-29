@@ -11,7 +11,10 @@
       </div>
       <div class="text">
         <div v-if="type === 'consultant'">{{ content }}</div>
-        <van-radio-group v-if="type === 'radio'" v-model="checked">
+        <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
+          {{ explain }}
+        </p>
+        <van-radio-group v-if="type === 'radio'" v-model="value">
           <van-radio v-for="choice in content" :key="choice" :name="choice">{{
             choice
           }}</van-radio>
@@ -19,6 +22,14 @@
         <van-cell-group v-if="type === 'input'" inset>
           <van-field v-model="value" placeholder="请输入" />
         </van-cell-group>
+        <van-button
+          class="next"
+          v-if="type != 'consultant'"
+          @click="handleNewClick"
+          color="#5997e9"
+          :disabled="!value"
+          >下一题</van-button
+        >
       </div>
     </div>
   </div>
@@ -28,9 +39,15 @@
 import { ref } from 'vue'
 const props = defineProps({
   type: String,
+  explain: String,
   content: [String, Array]
 })
-let checked = ref('')
+const emit = defineEmits(['newBtnClick'])
+
+let value = ref('')
+const handleNewClick = () => {
+  emit('newBtnClick')
+}
 </script>
 
 <style scoped lang="less">
@@ -72,5 +89,13 @@ let checked = ref('')
 }
 .van-cell-group--inset {
   margin: 0;
+}
+.next {
+  color: #fff;
+  float: right;
+  margin-top: 10px;
+  padding: 0.1em 0.3rem;
+  border-radius: 0.2rem;
+  height: 32px;
 }
 </style>
