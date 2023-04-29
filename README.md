@@ -1,7 +1,53 @@
-# Vue 3 + Vite
+## 接口协议
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+登陆 Post /auth/login 入参 {
 
-## Recommended IDE Setup
+}
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+返回结果 (不需要对 id进行处理反正没有用) { id: sessionId, status: 'ok', }
+
+
+
+
+获取问题： Get /questions
+
+返回结果
+
+```
+type answerType = "radio" | "input" 
+
+{
+    {
+        id:Int
+        type: 'consultant',
+        content: string,
+        explain:string?
+    },
+    {
+        type: answerType
+        content:string[]?
+    }
+}
+```
+
+提交结果：
+Post /submit
+```
+type result = {
+    questionId:Int
+    // （所有的结果统一保存为string）
+    answer:string
+}
+
+// 入参
+{
+    result:result[]
+}
+```
+
+
+// 这接口后面再讨论目前先不管
+get Result 
+{
+    获取结果
+}
