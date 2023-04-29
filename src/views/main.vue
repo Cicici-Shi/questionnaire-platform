@@ -1,5 +1,4 @@
 <template>
-  <section class="top"></section>
   <div class="main container">
     <p>尊敬的先生、女士：</p>
     <div class="content">
@@ -18,25 +17,38 @@
       <p><a href="mailto:fangfang@hit.edu.cn">fangfang@hit.edu.cn</a></p>
     </div>
     <p>如果您同意参加本项研究，请点击“同意”并进入下一页开始</p>
-    <van-button type="primary" to="/consultant">同意</van-button>
+    <div class="agree">
+      <van-button round type="primary" to="/consultant">同意</van-button>
+    </div>
   </div>
 </template>
 
 <script setup></script>
 
 <style scoped lang="less">
-// .main {
-//   position: relative;
-// }
+.main {
+  height: 100vh;
+  background-color: #181729;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  p {
+    margin: 0.5rem;
+  }
+  .agree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
 .content {
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid #ccc;
   p {
     text-indent: 2em;
   }
 }
-// .van-button {
-//   position: absolute;
-//   right: 10vw;
-//   bottom: 5vh;
-// }
+.van-button {
+  min-width: 250px;
+}
 </style>

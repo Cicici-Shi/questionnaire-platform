@@ -14,7 +14,7 @@
         <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
           {{ explain }}
         </p>
-        <van-radio-group v-if="type === 'radio'" v-model="value">
+        <van-radio-group v-if="type === 'radio'" v-model="value" @change="emit">
           <van-radio v-for="choice in content" :key="choice" :name="choice">{{
             choice
           }}</van-radio>
@@ -28,8 +28,8 @@
           @click="handleNewClick"
           color="#5997e9"
           :disabled="!value"
-          >下一题</van-button
-        >
+          >继续<van-icon name="arrow"
+        /></van-button>
       </div>
     </div>
   </div>
@@ -42,7 +42,7 @@ const props = defineProps({
   explain: String,
   content: [String, Array]
 })
-const emit = defineEmits(['newBtnClick'])
+const emit = defineEmits(['newBtnClick', 'resultChange'])
 
 let value = ref('')
 const handleNewClick = () => {
@@ -97,5 +97,8 @@ const handleNewClick = () => {
   padding: 0.1em 0.3rem;
   border-radius: 0.2rem;
   height: 32px;
+  .van-icon {
+    margin-left: 3px;
+  }
 }
 </style>

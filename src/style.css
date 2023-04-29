@@ -99,15 +99,12 @@ button:focus-visible {
 
 .container {
   margin: 0 auto 1em;
-  padding: 0 1rem 1rem;
-  width: 70%;
-  background-color: #ffffff;
+  padding: 0 2rem;
+  /* background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 5px;
-  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15);
-  position: relative;
-  bottom: 10vh;
-  min-height: 50vh;
+  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15); */
+  /* bottom: 10vh; */
 }
 
 .chat:first-of-type {
