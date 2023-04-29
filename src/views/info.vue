@@ -39,7 +39,7 @@ let checked = ref('')
 let age = ref('')
 let year = ref('')
 let month = ref('')
-let exp = ref('')
+let exp = ref(0)
 let percent = ref('')
 </script>
 

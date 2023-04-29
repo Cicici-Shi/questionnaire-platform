@@ -1,18 +1,25 @@
 <template>
-  <section class="top"></section>
   <div class="consultant container">
     <p style="text-indent: 2em; font-weight: 700">
       您是一位个人投资者，正打算使用在 HMS Investments
       开立的投资账户购买股票投资组合。选择投资标的过程中，该机构的一位投资顾问正在为您提供咨询服务。
     </p>
     <img src="@/assets/avatar.png" alt="avatar" />
+    <van-button round type="primary" to="/chat">下一页</van-button>
   </div>
-  <van-button type="primary" to="/chat">下一页</van-button>
 </template>
 
 <script setup></script>
 
 <style scoped>
+.consultant {
+  color: #fff;
+  background-color: #181729;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 img {
   display: block;
   margin-left: auto;
@@ -20,8 +27,6 @@ img {
   max-height: 30vh;
 }
 .van-button {
-  position: absolute;
-  right: 10vw;
-  bottom: 5vh;
+  margin-top: 2em;
 }
 </style>

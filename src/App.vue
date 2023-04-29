@@ -1,11 +1,4 @@
 <script setup>
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  window.onpopstate = function () {
-    history.go(1)
-  }
-})
 </script>
 
 <template>

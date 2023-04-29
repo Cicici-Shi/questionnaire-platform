@@ -5,6 +5,7 @@
       投资顾问对您的服务已经结束。因为研究中需要了解您刚刚填写的“用于评估风险承受程度的个人信息”的真实程度如何，所以请您就以上回答的真实程度逐一做出评价:
     </p>
     <AccuracyBox
+      ref="accuracyRef"
       v-for="item in accuracyConfig"
       :key="item.stem"
       :type="item.type"
@@ -18,10 +19,12 @@
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 onBeforeMount(() => {
   window.scrollTo(0, 0)
 })
+
+const accuracyRef = ref(null)
 let accuracyConfig = [
   {
     type: 'rate',
@@ -57,7 +60,7 @@ let accuracyConfig = [
 
 <style scoped>
 .accuracy {
-  padding: 40px 1rem;
+  padding: 40px 1rem 60px;
 }
 .van-rate {
   display: flex;

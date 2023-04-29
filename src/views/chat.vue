@@ -121,9 +121,14 @@ const chatConfig = [
 ]
 let current = ref(0)
 let currentChat = ref(chatConfig[0].chat)
+const isLast = ref(false)
 const disable = ref(false)
 
 let handleNewData = () => {
+  if (current.value === chatConfig.length - 1) {
+    disable.value = true
+  }
+
   current.value++
 
   let i = 0
@@ -134,16 +139,15 @@ let handleNewData = () => {
       currentChat.value.push(chatConfig[current.value].chat[i])
       i++
       window.scrollTo(0, document.body.scrollHeight)
-
       nextTick(() => {
         window.scrollTo(0, document.body.scrollHeight)
       })
     }
-    Promise.resolve().then(() => {
-      if (current.value === chatConfig.length - 1) {
-        disable.value = true
-      }
-    })
+    // Promise.resolve().then(() => {
+    //   if (current.value === chatConfig.length - 1) {
+    //     isLast.value = true
+    //   }
+    // })
   }, 1000)
 }
 
