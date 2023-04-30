@@ -121,12 +121,12 @@ const chatConfig = [
 ]
 let current = ref(0)
 let currentChat = ref(chatConfig[0].chat)
-const isLast = ref(false)
 const disable = ref(false)
 
 let handleNewData = () => {
   if (current.value === chatConfig.length - 1) {
     disable.value = true
+    return
   }
 
   current.value++
@@ -143,20 +143,12 @@ let handleNewData = () => {
         window.scrollTo(0, document.body.scrollHeight)
       })
     }
-    // Promise.resolve().then(() => {
-    //   if (current.value === chatConfig.length - 1) {
-    //     isLast.value = true
-    //   }
-    // })
   }, 1000)
 }
 
-// function submit(page) {
-//   document.cookie = 'lastQuestion=' + page + ';'
-//   this.$router.push({
-//     path: '/chat/' + page + 1
-//   })
-// }
+const submit = () => {
+  //请求新问题
+}
 </script>
 
 <style scoped lang="less">

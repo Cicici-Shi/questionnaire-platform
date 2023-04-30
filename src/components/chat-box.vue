@@ -14,20 +14,20 @@
         <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
           {{ explain }}
         </p>
-        <van-radio-group v-if="type === 'radio'" v-model="value" @change="emit">
+        <van-radio-group v-if="type === 'radio'" v-model="data">
           <van-radio v-for="choice in content" :key="choice" :name="choice">{{
             choice
           }}</van-radio>
         </van-radio-group>
         <van-cell-group v-if="type === 'input'" inset>
-          <van-field v-model="value" placeholder="请输入" />
+          <van-field v-model="data" placeholder="请输入" />
         </van-cell-group>
         <van-button
           class="next"
           v-if="type != 'consultant'"
           @click="handleNewClick"
           color="#5997e9"
-          :disabled="!value"
+          :disabled="!data"
           >继续<van-icon name="arrow"
         /></van-button>
       </div>
@@ -44,9 +44,11 @@ const props = defineProps({
 })
 const emit = defineEmits(['newBtnClick', 'resultChange'])
 
-let value = ref('')
+let data = ref('')
 const handleNewClick = () => {
   emit('newBtnClick')
+  //提交的方法
+  console.log(data.value)
 }
 </script>
 

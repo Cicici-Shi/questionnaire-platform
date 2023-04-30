@@ -2,45 +2,87 @@
   <section class="top name">HMS Investments</section>
   <div class="accuracy">
     <p style="font-weight: 700">最后，请填写您的其他人口统计信息：</p>
-    <p>1. 您的性别是？</p>
-    <van-radio-group v-model="checked">
-      <van-radio name="A">男</van-radio>
-      <van-radio name="B">女</van-radio>
-    </van-radio-group>
-    <p>2. 您的年龄是？</p>
-    <van-cell-group inset>
-      <van-field v-model="age" placeholder="请输入" />
-    </van-cell-group>
-    <p>3. 您参加工作多长时间了？</p>
-    <div class="yoe">
+    <van-form @submit="onSubmit">
       <van-cell-group inset>
-        <van-field v-model="year" placeholder="请输入" />
+        <van-field
+          name="radio"
+          label="1. 您的性别是？"
+          :rules="[{ required: true, message: '请输入' }]"
+        >
+          <template #input>
+            <van-radio-group v-model="checked" direction="horizontal">
+              <van-radio name="A">男</van-radio>
+              <van-radio name="B">女</van-radio>
+            </van-radio-group>
+          </template>
+        </van-field>
+        <van-field
+          v-model="age"
+          name="age"
+          label="2. 您的年龄是？"
+          placeholder="请输入"
+          :rules="[{ required: true, message: '请输入' }]"
+        />
+        <div class="yoe">
+          <van-field
+            v-model="year"
+            name="year"
+            label="3. 您参加工作多长时间了？"
+            placeholder="请输入"
+            :rules="[{ required: true, message: '请输入' }]"
+          />
+          <div class="mark">年</div>
+          <van-field
+            v-model="month"
+            name="month"
+            placeholder="请输入"
+            :rules="[{ required: true, message: '请输入' }]"
+          />
+          <div class="mark">月</div>
+        </div>
+        <van-field
+          name="rate"
+          label="4. 您在真人投资顾问的帮助下进行股票投资的经验如何？"
+          :rules="[{ required: true, message: '请输入' }]"
+        >
+          <template #input>
+            <van-rate
+              v-model="exp"
+              :count="10"
+              void-icon="circle"
+              icon="checked"
+            />
+          </template>
+        </van-field>
+        <van-field
+          v-model="percent"
+          name="percent"
+          label="5. 您以往股票投资亏损的次数占股票投资总次数的比例约为？（单位：%）"
+          placeholder="请输入"
+          :rules="[{ required: true, message: '请输入' }]"
+        />
       </van-cell-group>
-      <div>年</div>
-      <van-cell-group inset>
-        <van-field v-model="month" placeholder="请输入" />
-      </van-cell-group>
-      <div>个月</div>
-    </div>
-    <p>4. 您在真人投资顾问的帮助下进行股票投资的经验如何？</p>
-    <van-rate v-model="exp" :count="10" void-icon="circle" icon="checked" />
-    <p>5. 您以往股票投资亏损的次数占股票投资总次数的比例约为？（单位：%）</p>
-    <van-cell-group inset>
-      <van-field v-model="percent" placeholder="请输入" />
-    </van-cell-group>
-    <van-button type="primary">提交问卷</van-button>
+      <div style="margin: 16px">
+        <van-button block type="primary" native-type="submit">
+          提交
+        </van-button>
+      </div>
+    </van-form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 
-let checked = ref('')
-let age = ref('')
-let year = ref('')
-let month = ref('')
-let exp = ref(0)
-let percent = ref('')
+let checked = ref(null)
+let age = ref(null)
+let year = ref(null)
+let month = ref(null)
+let exp = ref(null)
+let percent = ref(null)
+const onSubmit = () => {
+  console.log('submit')
+}
 </script>
 
 <style scoped lang="less">
@@ -63,16 +105,6 @@ let percent = ref('')
 .van-cell {
   background: #f7f7f8;
 }
-.yoe {
-  display: flex;
-  div {
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    margin: 0 2px;
-  }
-}
-
 .van-rate {
   position: relative;
   margin-bottom: 27px;
@@ -87,6 +119,47 @@ let percent = ref('')
     position: absolute;
     right: 0;
     bottom: -25px;
+  }
+}
+.van-field {
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+.van-cell-group {
+  margin: 0;
+}
+.van-cell {
+  padding: 0;
+  background-color: #fff;
+}
+</style>
+<style lang="less">
+.van-field__control {
+  height: 46px;
+}
+.van-field__label {
+  width: 100%;
+}
+.van-rate__icon--full {
+  color: #5997e9;
+}
+.van-radio__icon--checked .van-icon {
+  background-color: #5997e9;
+  border-color: #5997e9;
+}
+.yoe {
+  display: flex;
+  align-items: flex-end;
+  white-space: nowrap;
+  .van-field:first-child label {
+    position: fixed;
+    z-index: 9;
+  }
+  .van-cell__value {
+    padding-top: 1.5em;
+  }
+  .mark {
+    margin: 0 5px 20px;
   }
 }
 </style>
