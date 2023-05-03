@@ -1,10 +1,12 @@
 <template>
   <div class="consultant container">
     <p style="text-indent: 2em; font-weight: 700">
-      您是一位个人投资者，正打算使用在 HMS Investments
-      开立的投资账户购买股票投资组合。选择投资标的过程中，该机构的一位投资顾问正在为您提供咨询服务。
+      {{ consultant.content1 }}
     </p>
-    <img src="@/assets/avatar.png" alt="avatar" />
+    <img :src="'/assets/' + consultant.img" />
+    <p style="text-indent: 2em; font-weight: 700">
+      {{ consultant.content2 }}
+    </p>
     <van-button round type="primary" :to="'/' + route.params.id + '/chat'"
       >下一页</van-button
     >
@@ -12,8 +14,24 @@
 </template>
 
 <script setup>
+import { onBeforeMount, ref } from 'vue'
+import { getQuestionAPI } from '@/services/main'
 import { useRoute } from 'vue-router'
 const route = useRoute()
+let consultant = ref({ content1: '', content2: '', img: '' })
+onBeforeMount(() => {
+  getQuestionAPI('consultant').then((res) => {
+    const consultantInfo = res[1].consultant
+    const content1 = consultantInfo.content1
+    const content2 = consultantInfo.content2
+    const img = consultantInfo.img
+    consultant.value = {
+      content1,
+      content2,
+      img
+    }
+  })
+})
 </script>
 
 <style scoped>
