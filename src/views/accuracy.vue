@@ -48,45 +48,39 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { getQuestionAPI, submitAPI } from '@/services/main'
 
 onBeforeMount(() => {
   window.scrollTo(0, 0)
+  getQuestionAPI('accuracy').then((res) => {
+    accuracyConfig.value = res[1].accuracy.map((item) => {
+      let data = {
+        stem: item.stem,
+        type: item.type,
+        id: item.id
+      }
+      if (item.content) {
+        data.content = JSON.parse(item.content).map((str) => str.trim())
+      }
+      return data
+    })
+  })
 })
-let value = ref(Array(10).fill(null))
-let accuracyConfig = [
-  {
-    type: 'rate',
-    stem: '1. 在问题“如果您的投资组合在一个月内损失了10%，您会怎么做?”中，您给出的回答是 ，您回答的真实程度为'
-  },
-  {
-    type: 'rate',
-    stem: '2. 在问题“您的流动净资产是多少？”中，您给出的回答是 万元，您回答的真实程度为'
-  },
-  {
-    type: 'rate',
-    stem: '3. 在问题“您的税前年收入是多少？”中，您给出的回答是 万元，您回答的真实程度为'
-  },
-  {
-    type: 'rate',
-    stem: '4. 在问题“您投资时最关注的是？”中，您给出的回答是 ，您回答的真实程度为'
-  },
-  {
-    type: 'rate',
-    stem: '5. 在问题“您目前的就业状况” 中，您给出的回答是 ，您回答的真实程度为'
-  },
-  {
-    type: 'rate',
-    stem: '6. 在问题“您有多少投资经验？”中，您给出的回答是 ，您回答的真实程度为：'
-  },
-  {
-    type: 'radio',
-    stem: '7. 您认为以下哪个选项是正确的?',
-    content: ['我的投资顾问是真人', '我的投资顾问是 AI']
-  }
-]
+let accuracyConfig = ref([])
+let value = ref(Array(accuracyConfig.value.length).fill(null))
+
 const router = useRouter()
+let result = ref([])
 const onSubmit = () => {
-  router.push('/info')
+  result.value = value.value.map((item, index) => {
+    return {
+      questionId: index,
+      answer: item
+    }
+  })
+  submitAPI('accuracy', result.value).then(() => {
+    router.push('/info')
+  })
 }
 </script>
 

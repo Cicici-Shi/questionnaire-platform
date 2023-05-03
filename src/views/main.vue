@@ -23,7 +23,15 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onBeforeMount } from 'vue'
+import { loginAPI } from '@/services/user'
+
+onBeforeMount(async () => {
+  let res = await loginAPI()
+  console.log(res)
+})
+</script>
 
 <style scoped lang="less">
 .main {

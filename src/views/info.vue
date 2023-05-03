@@ -4,63 +4,64 @@
     <p style="font-weight: 700">最后，请填写您的其他人口统计信息：</p>
     <van-form @submit="onSubmit">
       <van-cell-group inset>
-        <van-field
-          name="radio"
-          label="1. 您的性别是？"
-          :rules="[{ required: true, message: '请输入' }]"
-        >
-          <template #input>
-            <van-radio-group v-model="checked" direction="horizontal">
-              <van-radio name="A">男</van-radio>
-              <van-radio name="B">女</van-radio>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <van-field
-          v-model="age"
-          name="age"
-          label="2. 您的年龄是？"
-          placeholder="请输入"
-          :rules="[{ required: true, message: '请输入' }]"
-        />
-        <div class="yoe">
+        <template v-for="(item, index) in infoConfig" :key="item.id">
           <van-field
-            v-model="year"
-            name="year"
-            label="3. 您参加工作多长时间了？"
+            v-if="item.type === 'radio'"
+            name="radio"
+            :label="item.stem"
+            :rules="[{ required: true, message: '请输入' }]"
+          >
+            <template #input>
+              <van-radio-group v-model="value[index]" direction="horizontal">
+                <van-radio
+                  v-for="choice in item.content"
+                  :key="choice"
+                  :name="choice"
+                  >{{ choice }}</van-radio
+                >
+              </van-radio-group>
+            </template>
+          </van-field>
+          <van-field
+            v-if="item.type === 'input'"
+            v-model="value[index]"
+            :label="item.stem"
             placeholder="请输入"
             :rules="[{ required: true, message: '请输入' }]"
           />
-          <div class="mark">年</div>
-          <van-field
-            v-model="month"
-            name="month"
-            placeholder="请输入"
-            :rules="[{ required: true, message: '请输入' }]"
-          />
-          <div class="mark">月</div>
-        </div>
-        <van-field
-          name="rate"
-          label="4. 您在真人投资顾问的帮助下进行股票投资的经验如何？"
-          :rules="[{ required: true, message: '请输入' }]"
-        >
-          <template #input>
-            <van-rate
-              v-model="exp"
-              :count="10"
-              void-icon="circle"
-              icon="checked"
+          <div class="yoe" v-if="item.type === 'year_month'">
+            <van-field
+              v-model="year"
+              name="year"
+              :label="item.stem"
+              placeholder="请输入"
+              :rules="[{ required: true, message: '请输入' }]"
             />
-          </template>
-        </van-field>
-        <van-field
-          v-model="percent"
-          name="percent"
-          label="5. 您以往股票投资亏损的次数占股票投资总次数的比例约为？（单位：%）"
-          placeholder="请输入"
-          :rules="[{ required: true, message: '请输入' }]"
-        />
+            <div class="mark">年</div>
+            <van-field
+              v-model="month"
+              name="month"
+              placeholder="请输入"
+              :rules="[{ required: true, message: '请输入' }]"
+            />
+            <div class="mark">月</div>
+          </div>
+          <van-field
+            v-if="item.type === 'rate'"
+            name="rate"
+            :label="item.stem"
+            :rules="[{ required: true, message: '请输入' }]"
+          >
+            <template #input>
+              <van-rate
+                v-model="value[index]"
+                :count="10"
+                void-icon="circle"
+                icon="checked"
+              />
+            </template>
+          </van-field>
+        </template>
       </van-cell-group>
       <div style="margin: 16px">
         <van-button block type="primary" native-type="submit">
@@ -72,16 +73,52 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+import { getQuestionAPI, submitAPI } from '@/services/main'
+import { showSuccessToast } from 'vant'
 
-let checked = ref(null)
-let age = ref(null)
-let year = ref(null)
-let month = ref(null)
-let exp = ref(null)
-let percent = ref(null)
+let infoConfig = ref([])
+onBeforeMount(async () => {
+  await getQuestionAPI('info').then((res) => {
+    infoConfig.value = JSON.parse(
+      JSON.stringify(
+        res[1].info.map((item) => {
+          let data = {
+            stem: item.questionContent,
+            type: item.answerType,
+            id: item.id
+          }
+          if (item.answerContent) {
+            data.content = JSON.parse(item.answerContent).map((str) =>
+              str.trim()
+            )
+          }
+          return data
+        })
+      )
+    )
+  })
+})
+
+let value = ref([])
+let year = ref('')
+let month = ref('')
 const onSubmit = () => {
-  console.log('submit')
+  let result = value.value.map((item) => {
+    return {
+      questionId: item.id,
+      answerContent: JSON.stringify(item)
+    }
+  })
+  const index = result.value.findIndex((item) => item.type === 'year_month')
+  if (index !== -1) {
+    result.value[index] = `${year.value} '-' ${month.value}`
+  }
+  submitAPI('info', result).then((res) => {
+    console.log(res)
+    // 跳转或弹窗
+    showSuccessToast('提交成功！')
+  })
 }
 </script>
 

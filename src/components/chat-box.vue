@@ -3,14 +3,16 @@
     <div class="text-base">
       <div class="avatar">
         <img
-          v-if="type === 'consultant'"
+          v-if="type === 'consultant' || 'consultant-1'"
           src="@/assets/avatar.png"
           alt="avatar"
         />
         <div v-else class="me"></div>
       </div>
       <div class="text">
-        <div v-if="type === 'consultant'">{{ content }}</div>
+        <div v-if="type === 'consultant' || type === 'consultant-1'">
+          {{ content }}
+        </div>
         <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
           {{ explain }}
         </p>
@@ -24,10 +26,16 @@
         </van-cell-group>
         <van-button
           class="next"
-          v-if="type != 'consultant'"
+          v-if="type != 'consultant' && type != 'consultant-1'"
           @click="handleNewClick"
           color="#5997e9"
           :disabled="!data"
+          >继续<van-icon name="arrow" /></van-button
+        ><van-button
+          class="next"
+          v-if="type === 'consultant-1'"
+          @click="handleNewClick"
+          color="#5997e9"
           >继续<van-icon name="arrow"
         /></van-button>
       </div>
@@ -37,19 +45,24 @@
 
 <script setup>
 import { ref } from 'vue'
+import { watch } from 'vue'
+
 const props = defineProps({
   type: String,
   explain: String,
-  content: [String, Array]
+  content: [String, Array],
+  id: Number
 })
 const emit = defineEmits(['newBtnClick', 'resultChange'])
 
 let data = ref('')
 const handleNewClick = () => {
   emit('newBtnClick')
-  //提交的方法
-  console.log(data.value)
 }
+watch(data, (newValue, oldValue) => {
+  let resultItem = { questionId: props.id, answer: data.value }
+  emit('resultChange', resultItem)
+})
 </script>
 
 <style scoped lang="less">
