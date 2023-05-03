@@ -55,7 +55,7 @@ let value = ref(Array(accuracyConfig.value.length).fill(null))
 
 onBeforeMount(() => {
   window.scrollTo(0, 0)
-  getQuestionAPI('accuracy').then((res) => {
+  getQuestionAPI('accuracy', route.params.id).then((res) => {
     accuracyConfig.value = res[1].accuracy.map((item) => {
       let data = {
         stem: item.stem,

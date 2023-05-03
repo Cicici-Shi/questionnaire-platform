@@ -81,7 +81,7 @@ const route = useRoute()
 
 let infoConfig = ref([])
 onBeforeMount(async () => {
-  await getQuestionAPI('info').then((res) => {
+  await getQuestionAPI('info', route.params.id).then((res) => {
     infoConfig.value = JSON.parse(
       JSON.stringify(
         res[1].info.map((item) => {

@@ -20,7 +20,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 let consultant = ref({ content1: '', content2: '', img: '' })
 onBeforeMount(() => {
-  getQuestionAPI('consultant').then((res) => {
+  getQuestionAPI('consultant', route.params.id).then((res) => {
     const consultantInfo = res[1].consultant
     const content1 = consultantInfo.content1
     const content2 = consultantInfo.content2

@@ -11,9 +11,23 @@
         class="avatar"
         v-if="type === 'consultant' || type === 'consultant-1'"
       >
-        <img src="@/assets/avatar.png" alt="avatar" />
+        <img
+          :src="
+            [1, 4, 5].includes(parseInt(route.params.id))
+              ? '/assets/avatar.png'
+              : '/assets/robot.png'
+          "
+          alt="avatar"
+        />
       </div>
       <div class="text">
+        <div style="width: 200px; height: 230px" v-if="img">
+          <ImgComponent style="width: 200px" :imageUrl="'/assets/' + img" />
+        </div>
+        <div v-if="advise">
+          {{ JSON.parse(advise).title }}
+        </div>
+        <div v-if="advise" v-html="JSON.parse(advise).content" />
         <div v-if="type === 'consultant' || type === 'consultant-1'">
           {{ content }}
         </div>
@@ -28,16 +42,17 @@
         <van-cell-group v-if="type === 'input'" inset>
           <van-field v-model="data" placeholder="请输入" />
         </van-cell-group>
+
         <van-button
           class="next"
           v-if="type != 'consultant' && type != 'consultant-1'"
           @click="handleNewClick"
           color="#5997e9"
-          :disabled="!data"
+          :disabled="!data && !!type"
           >继续<van-icon name="arrow" /></van-button
         ><van-button
           class="next"
-          v-if="type === 'consultant-1'"
+          v-if="type === 'consultant-1' || advise"
           @click="handleNewClick"
           color="#5997e9"
           >继续<van-icon name="arrow"
@@ -56,12 +71,16 @@
 <script setup>
 import { ref } from 'vue'
 import { watch } from 'vue'
-
+import { useRoute } from 'vue-router'
+import ImgComponent from './img.vue'
+const route = useRoute()
 const props = defineProps({
   type: String,
   explain: String,
   content: [String, Array],
-  id: Number
+  id: Number,
+  img: String,
+  advise: String
 })
 const emit = defineEmits(['newBtnClick', 'resultChange'])
 
