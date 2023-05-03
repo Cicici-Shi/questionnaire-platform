@@ -26,6 +26,7 @@
 import { ref, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
+import { scrollToBottom } from '@/utils/scroll'
 
 const chatConfig = [
   {
@@ -161,6 +162,7 @@ onBeforeMount(() => {
     chatConfig.push(...questionList.value)
   })
 })
+
 let handleNewData = () => {
   if (current.value === chatConfig.length - 1) {
     disable.value = true
@@ -168,18 +170,19 @@ let handleNewData = () => {
   }
 
   current.value++
-
+  
   let i = 0
   currentChat.value.push(chatConfig[current.value].chat[i])
   i++
+
   setTimeout(() => {
     while (i < chatConfig[current.value].chat.length) {
       currentChat.value.push(chatConfig[current.value].chat[i])
       i++
-      window.scrollTo(0, document.body.scrollHeight)
       nextTick(() => {
-        window.scrollTo(0, document.body.scrollHeight)
+        scrollToBottom()
       })
+      
     }
   }, 1000)
 }
@@ -212,6 +215,11 @@ const submit = () => {
 }
 .chat {
   color: #343541;
+}
+#chatContainer {
+  height: 100%;
+  overflow: scroll;
+  background-color: #181729;
 }
 </style>
 <style>

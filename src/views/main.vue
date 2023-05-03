@@ -35,8 +35,6 @@ onBeforeMount(async () => {
 <style scoped lang="less">
 .main {
   height: 100vh;
-  background-color: #181729;
-  color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
