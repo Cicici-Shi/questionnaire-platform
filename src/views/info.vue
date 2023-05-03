@@ -108,14 +108,14 @@ const onSubmit = () => {
   result = value.value.map((item, index) => {
     return {
       questionId: infoConfig.value[index].id,
-      answerContent: item
+      answer: item
     }
   })
   const index = infoConfig.value.findIndex((item) => item.type === 'year_month')
   if (index !== -1) {
     result[index] = {
       questionId: infoConfig.value[index].id,
-      answerContent: `${year.value} '-' ${month.value}`
+      answer: `${year.value} '-' ${month.value}`
     }
   }
   submitAPI('info', result).then(() => {

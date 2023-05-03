@@ -45,3 +45,5 @@ type result = {
 ```
 
 // 这接口后面再讨论目前先不管 get Result { 获取结果 }
+
+

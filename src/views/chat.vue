@@ -158,7 +158,7 @@ onBeforeMount(() => {
       }
       return data
     })
-    // chatConfig.push(...questionList.value)
+    chatConfig.push(...questionList.value)
   })
 })
 let handleNewData = () => {
