@@ -76,6 +76,8 @@
 import { onBeforeMount, ref } from 'vue'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 import { showSuccessToast } from 'vant'
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
 let infoConfig = ref([])
 onBeforeMount(async () => {
@@ -118,7 +120,7 @@ const onSubmit = () => {
       answer: `${year.value} '-' ${month.value}`
     }
   }
-  submitAPI('info', result).then(() => {
+  submitAPI('info', result, route.params.id).then(() => {
     // 跳转或弹窗
     showSuccessToast('提交成功！')
   })

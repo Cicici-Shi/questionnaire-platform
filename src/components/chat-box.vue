@@ -1,13 +1,17 @@
 <template>
-  <div class="chat-box">
+  <div
+    :class="
+      type === 'consultant' || type === 'consultant-1'
+        ? 'chat-box'
+        : 'reverse-chat-box'
+    "
+  >
     <div class="text-base">
-      <div class="avatar">
-        <img
-          v-if="type === 'consultant' || 'consultant-1'"
-          src="@/assets/avatar.png"
-          alt="avatar"
-        />
-        <div v-else class="me"></div>
+      <div
+        class="avatar"
+        v-if="type === 'consultant' || type === 'consultant-1'"
+      >
+        <img src="@/assets/avatar.png" alt="avatar" />
       </div>
       <div class="text">
         <div v-if="type === 'consultant' || type === 'consultant-1'">
@@ -39,6 +43,12 @@
           >继续<van-icon name="arrow"
         /></van-button>
       </div>
+      <div class="avatar">
+        <div
+          v-if="type != 'consultant' && type != 'consultant-1'"
+          class="me"
+        ></div>
+      </div>
     </div>
   </div>
 </template>
@@ -66,6 +76,18 @@ watch(data, (newValue, oldValue) => {
 </script>
 
 <style scoped lang="less">
+.reverse-chat-box {
+  display: flex;
+  padding: 1rem;
+  flex-direction: row-reverse;
+
+  .text-base {
+    display: flex;
+  }
+  .text {
+    margin-right: 0.8rem;
+  }
+}
 .chat-box {
   display: flex;
   padding: 1rem;

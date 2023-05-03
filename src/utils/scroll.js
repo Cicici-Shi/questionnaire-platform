@@ -5,10 +5,8 @@ export function scrollToBottom (el) {
   }
   //原始值
   let startTop = el.scrollTop
-  console.log("startTop : ",startTop)
   //最终值
   let endTop = el.scrollHeight - el.clientHeight
-  console.log("endTop : ",endTop)
   //生成一个动画控制函数
   let scrollAnimationFn = doAnimation(startTop, endTop, 300, el)
   //执行动画，每10ms执行一次

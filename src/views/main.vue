@@ -1,5 +1,6 @@
 <template>
-  <div class="main container">
+  <section class="top"></section>
+  <div class="main main-container">
     <p>尊敬的先生、女士：</p>
     <div class="content">
       <p>
@@ -18,7 +19,9 @@
     </div>
     <p>如果您同意参加本项研究，请点击“同意”并进入下一页开始</p>
     <div class="agree">
-      <van-button round type="primary" to="/consultant">同意</van-button>
+      <van-button type="primary" :to="'/' + route.params.id + '/consultant'"
+        >同意</van-button
+      >
     </div>
   </div>
 </template>
@@ -26,34 +29,27 @@
 <script setup>
 import { onBeforeMount } from 'vue'
 import { loginAPI } from '@/services/user'
+import { useRoute } from 'vue-router'
 
 onBeforeMount(async () => {
   await loginAPI()
 })
+const route = useRoute()
 </script>
 
 <style scoped lang="less">
-.main {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  p {
-    margin: 0.5rem;
-  }
-  .agree {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-}
+// .main {
+//   position: relative;
+// }
 .content {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #222;
   p {
     text-indent: 2em;
   }
 }
-.van-button {
-  min-width: 250px;
-}
+// .van-button {
+//   position: absolute;
+//   right: 10vw;
+//   bottom: 5vh;
+// }
 </style>

@@ -16,7 +16,11 @@
         @resultChange="handleResult"
       ></ChatBox>
     </div>
-    <van-button v-if="disable" type="primary" @click="submit" to="/accuracy"
+    <van-button
+      v-if="disable"
+      type="primary"
+      @click="submit"
+      :to="'/' + route.params.id + '/accuracy'"
       >下一页<van-icon name="guide-o"
     /></van-button>
   </div>
@@ -24,9 +28,10 @@
 
 <script setup>
 import { ref, nextTick, onBeforeMount } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
+import {} from 'vue-router'
 
 const chatConfig = [
   {
@@ -170,21 +175,19 @@ let handleNewData = () => {
   }
 
   current.value++
-  
-  let i = 0
-  currentChat.value.push(chatConfig[current.value].chat[i])
-  i++
 
   setTimeout(() => {
+    let i = 0
+    currentChat.value.push(chatConfig[current.value].chat[i])
+    i++
     while (i < chatConfig[current.value].chat.length) {
       currentChat.value.push(chatConfig[current.value].chat[i])
       i++
       nextTick(() => {
         scrollToBottom()
       })
-      
     }
-  }, 1000)
+  }, 150)
 }
 let result = ref([])
 let handleResult = (resultItem) => {
@@ -198,9 +201,10 @@ let handleResult = (resultItem) => {
   }
 }
 const router = useRouter()
+const route = useRoute()
 
 const submit = () => {
-  submitAPI('question', result.value).then(() => {
+  submitAPI('question', result.value, route.params.id).then(() => {
     router.push('/accuracy')
   })
 }
@@ -220,6 +224,9 @@ const submit = () => {
   height: 100%;
   overflow: scroll;
   background-color: #181729;
+}
+::-webkit-scrollbar {
+  display: none;
 }
 </style>
 <style>

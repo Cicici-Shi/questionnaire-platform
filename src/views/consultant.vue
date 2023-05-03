@@ -5,11 +5,16 @@
       开立的投资账户购买股票投资组合。选择投资标的过程中，该机构的一位投资顾问正在为您提供咨询服务。
     </p>
     <img src="@/assets/avatar.png" alt="avatar" />
-    <van-button round type="primary" to="/chat">下一页</van-button>
+    <van-button round type="primary" :to="'/' + route.params.id + '/chat'"
+      >下一页</van-button
+    >
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { useRoute } from 'vue-router'
+const route = useRoute()
+</script>
 
 <style scoped>
 .consultant {

@@ -1,42 +1,33 @@
 const routes = [
   {
-    path: '/',
-    redirect: '/main',
-    meta: { index: 0 }
+    path: '/:id/',
+    redirect: '/:id/main',
+    meta: { index: 0 },
   },
   {
-    path: '/main',
+    path: '/:id/main',
     component: () => import('../views/main.vue'),
-    meta: { index: 1 }
-    // beforeEnter: () => {
-    //   const lastQuestion = getCookie('lastQuestion')
-    //   if (lastQuestion) {
-    //     const nextQuestion = parseInt(lastQuestion) + 1
-    //     return '/chat/' + nextQuestion
-    //   } else {
-    //     return '/main'
-    //   }
-    // }
+    meta: { index: 1 },
   },
   {
-    path: '/consultant',
+    path: '/:id/consultant',
     component: () => import('../views/consultant.vue'),
-    meta: { index: 2 }
+    meta: { index: 2 },
   },
   {
-    path: '/chat',
+    path: '/:id/chat',
     component: () => import('../views/chat.vue'),
-    meta: { index: 3 }
+    meta: { index: 3 },
   },
   {
-    path: '/accuracy',
+    path: '/:id/accuracy',
     component: () => import('../views/accuracy.vue'),
-    meta: { index: 4 }
+    meta: { index: 4 },
   },
   {
-    path: '/info',
+    path: '/:id/info',
     component: () => import('../views/info.vue'),
-    meta: { index: 5 }
+    meta: { index: 5 },
   }
 ]
 export default routes

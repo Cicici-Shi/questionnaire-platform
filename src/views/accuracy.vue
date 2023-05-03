@@ -47,7 +47,7 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 
 let accuracyConfig = ref([])
@@ -72,6 +72,7 @@ onBeforeMount(() => {
 
 const router = useRouter()
 let result = ref([])
+const route = useRoute()
 const onSubmit = () => {
   result.value = value.value.map((item, index) => {
     return {
@@ -79,8 +80,8 @@ const onSubmit = () => {
       answer: item
     }
   })
-  submitAPI('accuracy', result.value).then(() => {
-    router.push('/info')
+  submitAPI('accuracy', result.value, route.params.id).then(() => {
+    router.push(`/${route.params.id}/info`)
   })
 }
 </script>
