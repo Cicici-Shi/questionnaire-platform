@@ -28,8 +28,7 @@ import { onBeforeMount } from 'vue'
 import { loginAPI } from '@/services/user'
 
 onBeforeMount(async () => {
-  let res = await loginAPI()
-  console.log(res)
+  await loginAPI()
 })
 </script>
 

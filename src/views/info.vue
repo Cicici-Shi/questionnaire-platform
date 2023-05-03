@@ -103,19 +103,22 @@ onBeforeMount(async () => {
 let value = ref([])
 let year = ref('')
 let month = ref('')
+let result = []
 const onSubmit = () => {
-  let result = value.value.map((item) => {
+  result = value.value.map((item, index) => {
     return {
-      questionId: item.id,
-      answerContent: JSON.stringify(item)
+      questionId: infoConfig.value[index].id,
+      answerContent: item
     }
   })
-  const index = result.value.findIndex((item) => item.type === 'year_month')
+  const index = infoConfig.value.findIndex((item) => item.type === 'year_month')
   if (index !== -1) {
-    result.value[index] = `${year.value} '-' ${month.value}`
+    result[index] = {
+      questionId: infoConfig.value[index].id,
+      answerContent: `${year.value} '-' ${month.value}`
+    }
   }
-  submitAPI('info', result).then((res) => {
-    console.log(res)
+  submitAPI('info', result).then(() => {
     // 跳转或弹窗
     showSuccessToast('提交成功！')
   })

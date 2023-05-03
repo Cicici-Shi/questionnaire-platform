@@ -50,6 +50,9 @@ import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 
+let accuracyConfig = ref([])
+let value = ref(Array(accuracyConfig.value.length).fill(null))
+
 onBeforeMount(() => {
   window.scrollTo(0, 0)
   getQuestionAPI('accuracy').then((res) => {
@@ -66,15 +69,13 @@ onBeforeMount(() => {
     })
   })
 })
-let accuracyConfig = ref([])
-let value = ref(Array(accuracyConfig.value.length).fill(null))
 
 const router = useRouter()
 let result = ref([])
 const onSubmit = () => {
   result.value = value.value.map((item, index) => {
     return {
-      questionId: index,
+      questionId: accuracyConfig.value[index].id,
       answer: item
     }
   })

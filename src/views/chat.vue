@@ -197,7 +197,7 @@ let handleResult = (resultItem) => {
 const router = useRouter()
 
 const submit = () => {
-  submitAPI('chat', result.value).then(() => {
+  submitAPI('question', result.value).then(() => {
     router.push('/accuracy')
   })
 }
