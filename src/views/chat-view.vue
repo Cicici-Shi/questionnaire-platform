@@ -81,6 +81,10 @@ onBeforeMount(() => {
           0,
           questionList.value[i].chat.length - 1
         )
+        if (i + 1 >= questionList.value.length) {
+          questionList.value.splice(i, 1)
+          break
+        }
         questionList.value[i + 1].chat.unshift(...formatChat)
         questionList.value.splice(i, 1)
         i--
