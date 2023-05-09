@@ -48,23 +48,22 @@
           </div>
           <van-field
             v-if="item.type === 'rate'"
-            name="rate"
             :label="item.stem"
-            :rules="[{ required: true, message: '请输入' }]"
+            :error-message="value[index] || isNew ? '' : '请输入'"
           >
             <template #input>
-              <van-rate
-                v-model="value[index]"
-                :count="10"
-                void-icon="circle"
-                icon="checked"
-              />
+              <RateNum v-model="value[index]"></RateNum>
             </template>
           </van-field>
         </template>
       </van-cell-group>
       <div style="margin: 16px">
-        <van-button block type="primary" native-type="submit">
+        <van-button
+          block
+          type="primary"
+          native-type="submit"
+          @click="isNew = false"
+        >
           提交
         </van-button>
       </div>
@@ -78,8 +77,8 @@ import { getQuestionAPI, submitAPI } from '@/services/main'
 import { showSuccessToast } from 'vant'
 import { useRoute } from 'vue-router'
 const route = useRoute()
-
 let infoConfig = ref([])
+let isNew = ref(true)
 onBeforeMount(async () => {
   await getQuestionAPI('info', route.params.id).then((res) => {
     infoConfig.value = JSON.parse(
@@ -100,13 +99,22 @@ onBeforeMount(async () => {
       )
     )
   })
+  errMsg.value = ref(Array(infoConfig.value.length).fill(''))
 })
 
 let value = ref([])
 let year = ref('')
 let month = ref('')
+let errMsg = ref([])
+
 let result = []
 const onSubmit = () => {
+  for (let i = 0; i < infoConfig.value.length; i++) {
+    if (infoConfig.value[i].type === 'rate' && !value.value[i]) {
+      console.log('请完整输入表单')
+      return
+    }
+  }
   result = value.value.map((item, index) => {
     return {
       questionId: infoConfig.value[index].id,
@@ -173,6 +181,9 @@ const onSubmit = () => {
 .van-cell {
   padding: 0;
   background-color: #fff;
+}
+.rate-num {
+  width: 100%;
 }
 </style>
 <style lang="less">
