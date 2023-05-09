@@ -12,5 +12,3 @@ export const submitAPI = (type, result, id = 1) => {
     result
   })
 }
-
-

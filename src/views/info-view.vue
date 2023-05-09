@@ -48,23 +48,22 @@
           </div>
           <van-field
             v-if="item.type === 'rate'"
-            name="rate"
             :label="item.stem"
-            :rules="[{ required: true, message: '请输入' }]"
+            :error-message="value[index] || isNew ? '' : '请输入'"
           >
             <template #input>
-              <van-rate
-                v-model="value[index]"
-                :count="10"
-                void-icon="circle"
-                icon="checked"
-              />
+              <RateNum v-model="value[index]"></RateNum>
             </template>
           </van-field>
         </template>
       </van-cell-group>
       <div style="margin: 16px">
-        <van-button block type="primary" native-type="submit">
+        <van-button
+          block
+          type="primary"
+          native-type="submit"
+          @click="isNew = false"
+        >
           提交
         </van-button>
       </div>
@@ -75,11 +74,10 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue'
 import { getQuestionAPI, submitAPI } from '@/services/main'
-import { showSuccessToast } from 'vant'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 const route = useRoute()
-
 let infoConfig = ref([])
+let isNew = ref(true)
 onBeforeMount(async () => {
   await getQuestionAPI('info', route.params.id).then((res) => {
     infoConfig.value = JSON.parse(
@@ -100,13 +98,23 @@ onBeforeMount(async () => {
       )
     )
   })
+  errMsg.value = ref(Array(infoConfig.value.length).fill(''))
 })
 
 let value = ref([])
 let year = ref('')
 let month = ref('')
+let errMsg = ref([])
+
 let result = []
+const router = useRouter()
 const onSubmit = () => {
+  for (let i = 0; i < infoConfig.value.length; i++) {
+    if (infoConfig.value[i].type === 'rate' && !value.value[i]) {
+      console.log('请完整输入表单')
+      return
+    }
+  }
   result = value.value.map((item, index) => {
     return {
       questionId: infoConfig.value[index].id,
@@ -120,9 +128,8 @@ const onSubmit = () => {
       answer: `${year.value} '-' ${month.value}`
     }
   }
-  submitAPI('info', result, route.params.id).then(() => {
-    // 跳转或弹窗
-    showSuccessToast('提交成功！')
+  submitAPI('info', result.value, route.params.id).then(() => {
+    router.push(`/${route.params.id}/end`)
   })
 }
 </script>
@@ -174,10 +181,13 @@ const onSubmit = () => {
   padding: 0;
   background-color: #fff;
 }
+.rate-num {
+  width: 100%;
+}
 </style>
 <style lang="less">
 .van-field__control {
-  height: 46px;
+  min-height: 46px;
 }
 .van-field__label {
   width: 100%;
@@ -203,5 +213,8 @@ const onSubmit = () => {
   .mark {
     margin: 0 5px 20px;
   }
+}
+.van-field__value input {
+  text-align: center;
 }
 </style>

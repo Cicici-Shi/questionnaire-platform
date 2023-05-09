@@ -40,7 +40,13 @@ body {
   min-width: 320px;
   height: 100vh;
   background-color: #fff;
-  font-size: 0.9em;
+  font-size: 0.9rem;
+}
+
+@media screen and (min-width: 768px) {
+  body {
+    font-size: 1.1rem;
+  }
 }
 
 h1 {

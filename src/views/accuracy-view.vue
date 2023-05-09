@@ -6,38 +6,58 @@
     </p>
     <van-form @submit="onSubmit">
       <van-cell-group inset>
-        <van-field
-          v-for="(item, index) in accuracyConfig"
-          :key="item.stem"
-          name="rate"
-          :label="item.stem"
-          :rules="[{ required: true, message: '请输入' }]"
-        >
-          <template #input>
-            <van-radio-group
-              v-model="value[index]"
-              direction="horizontal"
-              v-if="item.type === 'radio'"
-            >
-              <van-radio
-                v-for="choice in item.content"
-                :key="choice"
-                :name="choice"
-                >{{ choice }}</van-radio
-              >
-            </van-radio-group>
-            <van-rate
-              v-model="value[index]"
-              :count="10"
-              void-icon="circle"
-              icon="checked"
-              v-else
-            />
-          </template>
-        </van-field>
+        <template v-for="(item, index) in accuracyConfig" :key="item.stem">
+          <van-field
+            v-if="item.type === 'radio'"
+            name="radio"
+            :label="item.stem"
+            :rules="[{ required: true, message: '请输入' }]"
+          >
+            <template #input>
+              <van-radio-group v-model="value[index]" direction="horizontal">
+                <van-radio
+                  v-for="choice in item.content"
+                  :key="choice"
+                  :name="choice"
+                  >{{ choice }}</van-radio
+                >
+              </van-radio-group>
+            </template>
+          </van-field>
+          <van-field
+            v-if="item.type === 'rate'"
+            :label="item.stem"
+            :error-message="value[index] || isNew ? '' : '请输入'"
+          >
+            <template #input>
+              <RateNum
+                v-model="value[index]"
+                former="非常低"
+                latter="非常高"
+              ></RateNum>
+            </template> </van-field
+          ><van-field
+            v-if="item.type === 'multi'"
+            :label="item.stem"
+            :error-message="value[index] || isNew ? '' : '请输入'"
+          >
+            <template #input>
+              <RateNum
+                v-model="value[index]"
+                former="非常低"
+                latter="非常高"
+              ></RateNum>
+            </template>
+          </van-field>
+        </template>
       </van-cell-group>
       <div style="margin: 16px">
-        <van-button block type="primary" native-type="submit">
+        <van-button
+          block
+          type="primary"
+          native-type="submit"
+          @click="isNew = false"
+        >
           下一页<van-icon name="guide-o" />
         </van-button>
       </div>
@@ -52,6 +72,8 @@ import { getQuestionAPI, submitAPI } from '@/services/main'
 
 let accuracyConfig = ref([])
 let value = ref(Array(accuracyConfig.value.length).fill(null))
+let isNew = ref(true)
+let errMsg = ref([])
 
 onBeforeMount(() => {
   window.scrollTo(0, 0)
@@ -68,12 +90,20 @@ onBeforeMount(() => {
       return data
     })
   })
+  errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
 })
 
 const router = useRouter()
 let result = ref([])
 const route = useRoute()
 const onSubmit = () => {
+  for (let i = 0; i < accuracyConfig.value.length; i++) {
+    if (accuracyConfig.value[i].type === 'rate' && !value.value[i]) {
+      console.log('请完整输入表单')
+      return
+    }
+  }
+
   result.value = value.value.map((item, index) => {
     return {
       questionId: accuracyConfig.value[index].id,
@@ -122,11 +152,14 @@ const onSubmit = () => {
 .van-cell {
   padding: 0;
 }
+.rate-num {
+  width: 100%;
+}
 </style>
 
 <style>
 .van-field__control {
-  height: 46px;
+  min-height: 46px;
 }
 .van-field__label {
   width: 100%;
