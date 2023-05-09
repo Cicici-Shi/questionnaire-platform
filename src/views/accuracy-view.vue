@@ -32,23 +32,45 @@
             <template #input>
               <RateNum
                 v-model="value[index]"
-                former="非常低"
-                latter="非常高"
-              ></RateNum>
-            </template> </van-field
-          ><van-field
-            v-if="item.type === 'multi'"
-            :label="item.stem"
-            :error-message="value[index] || isNew ? '' : '请输入'"
-          >
-            <template #input>
-              <RateNum
-                v-model="value[index]"
-                former="非常低"
-                latter="非常高"
+                :start="item.low"
+                :range="item.height"
+                :former="item.lowText"
+                :latter="item.highText"
               ></RateNum>
             </template>
           </van-field>
+          <van-field
+            class="multi"
+            v-if="item.type === 'multi'"
+            :label="item.stem.main"
+            :error-message="
+              isNew
+                ? ''
+                : isEmpty
+                ? '请输入'
+                : isSumTen
+                ? ''
+                : '总分必须等于10分'
+            "
+          >
+            <template #input>
+              <RateNum
+                v-for="(little, i) in item.stem.littles"
+                :key="little"
+                :label="little.stem"
+                v-model="multiValue[i]"
+                :start="little.low"
+                :range="little.height"
+                :former="little.lowText"
+                :latter="little.highText"
+              ></RateNum>
+            </template>
+          </van-field>
+          <div v-if="item.type === 'multi'">
+            您按照重要程度给上述三个方面分配的分值依次为(
+            {{ multiValue[0] }} )分、（ {{ multiValue[1] }} ）分、（
+            {{ multiValue[2] }} ）分。 请注意：总分必须等于10分。
+          </div>
         </template>
       </van-cell-group>
       <div style="margin: 16px">
@@ -66,29 +88,52 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 
 let accuracyConfig = ref([])
-let value = ref(Array(accuracyConfig.value.length).fill(null))
+let value = ref([])
 let isNew = ref(true)
 let errMsg = ref([])
+let indexes = ref([])
+let multiValue = ref(Array(3).fill(null))
+const isEmpty = computed(() => multiValue.value.some((value) => value == null))
+const isSumTen = computed(
+  () => multiValue.value.reduce((acc, value) => acc + value, 0) === 10
+)
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   window.scrollTo(0, 0)
-  getQuestionAPI('accuracy', route.params.id).then((res) => {
+  await getQuestionAPI('accuracy', route.params.id).then((res) => {
     accuracyConfig.value = res[1].accuracy.map((item) => {
       let data = {
         stem: item.stem,
         type: item.type,
-        id: item.id
+        id: item.id,
+        low: item.low,
+        height: item.height,
+        lowText: item.lowText,
+        highText: item.highText
+      }
+      if (item.type == 'multi') {
+        data.stem = JSON.parse(item.stem)
       }
       if (item.content) {
         data.content = JSON.parse(item.content).map((str) => str.trim())
       }
       return data
     })
+  })
+  indexes.value = accuracyConfig.value.reduce((acc, obj, index) => {
+    if (obj.type == 'multi') {
+      acc.push(index)
+    }
+    return acc
+  }, [])
+  value.value = Array(accuracyConfig.value.length).fill(null)
+  indexes.value.forEach((x) => {
+    value.value[x] = Array(3).fill(null)
   })
   errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
 })
@@ -107,7 +152,10 @@ const onSubmit = () => {
   result.value = value.value.map((item, index) => {
     return {
       questionId: accuracyConfig.value[index].id,
-      answer: item
+      answer:
+        typeof item === 'string' || typeof item === 'number'
+          ? item
+          : JSON.stringify(multiValue.value)
     }
   })
   submitAPI('accuracy', result.value, route.params.id).then(() => {
@@ -170,5 +218,10 @@ const onSubmit = () => {
 .van-radio__icon--checked .van-icon {
   background-color: #5997e9;
   border-color: #5997e9;
+}
+.multi .van-field__control {
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
 }
 </style>
