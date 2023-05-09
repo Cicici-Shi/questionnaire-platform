@@ -1,32 +1,32 @@
 const routes = [
   {
     path: '/:id/',
-    redirect: '/:id/main',
+    redirect: '/:id/main-view',
     meta: { index: 0 },
   },
   {
     path: '/:id/main',
-    component: () => import('../views/main.vue'),
+    component: () => import('../views/main-view.vue'),
     meta: { index: 1 },
   },
   {
     path: '/:id/consultant',
-    component: () => import('../views/consultant.vue'),
+    component: () => import('../views/consultant-view.vue'),
     meta: { index: 2 },
   },
   {
     path: '/:id/chat',
-    component: () => import('../views/chat.vue'),
+    component: () => import('../views/chat-view.vue'),
     meta: { index: 3 },
   },
   {
     path: '/:id/accuracy',
-    component: () => import('../views/accuracy.vue'),
+    component: () => import('../views/accuracy-view.vue'),
     meta: { index: 4 },
   },
   {
     path: '/:id/info',
-    component: () => import('../views/info.vue'),
+    component: () => import('../views/info-view.vue'),
     meta: { index: 5 },
   }
 ]

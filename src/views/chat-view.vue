@@ -34,23 +34,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
 
-const chatConfig = [
-  {
-    id: 0,
-    chat: [
-      {
-        type: 'consultant',
-        content:
-          '客户您好！我是 HMS Investments 的投资顾问王经理，专门面向个人客户进行服务。我有 XX 年的投资服务经验，累计为 XX 位顾客制定了投资计划。下面我将通过一些问题了解您的个人情况，以为您制定合适的投资组合。'
-      },
-      {
-        type: 'consultant-1',
-        content:
-          '首先请您提供您的职业、年收入、流动资产、投资经验和风险偏好等信息，以便于我评估您的风险承受程度，随后为您制定合理的投资组合：（注：您填写的个人信息仅用来制定投资组合，不会被用来识别您的个人身份。'
-      }
-    ]
-  }
-]
+const chatConfig = []
 let questionList = ref([])
 let current = ref(0)
 let currentChat = ref([])
@@ -88,8 +72,22 @@ onBeforeMount(() => {
       }
       return data
     })
+    for (let i = 0; i < questionList.value.length; i++) {
+      if (
+        questionList.value[i].chat[questionList.value[i].chat.length - 1]
+          .type === null
+      ) {
+        let formatChat = questionList.value[i].chat.slice(
+          0,
+          questionList.value[i].chat.length - 1
+        )
+        questionList.value[i + 1].chat.unshift(...formatChat)
+        questionList.value.splice(i, 1)
+        i--
+      }
+    }
     currentChat.value.push(...questionList.value[0].chat)
-    chatConfig.push(...questionList.value.slice(1, questionList.value.length))
+    chatConfig.push(...questionList.value)
   })
 })
 
@@ -101,18 +99,18 @@ let handleNewData = () => {
 
   current.value++
 
-  setTimeout(() => {
-    let i = 0
+  let i = 0
+  let intervalId = setInterval(() => {
+    if (i >= chatConfig[current.value].chat.length) {
+      clearInterval(intervalId)
+      return
+    }
     currentChat.value.push(chatConfig[current.value].chat[i])
     i++
-    while (i < chatConfig[current.value].chat.length) {
-      currentChat.value.push(chatConfig[current.value].chat[i])
-      i++
-      nextTick(() => {
-        scrollToBottom()
-      })
-    }
-  }, 150)
+    nextTick(() => {
+      scrollToBottom()
+    })
+  }, 200)
 }
 let result = ref([])
 let handleResult = (resultItem) => {
@@ -155,6 +153,9 @@ const submit = () => {
 }
 </style>
 <style>
+.text {
+  max-width: 70vw;
+}
 .chat .next {
   display: none;
 }
