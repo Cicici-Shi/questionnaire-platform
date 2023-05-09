@@ -1,7 +1,9 @@
 // 二次封装axios
 import axios from 'axios'
 
+export const baseURL = '/api'
 const request = axios.create({
+  baseURL,
   timeout: 10000
 })
 
