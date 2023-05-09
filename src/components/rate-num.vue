@@ -9,24 +9,34 @@
         @click="handleClick(n)"
         :class="{ checked: modelValue === n }"
       >
-        {{ n }}
+        {{ 1 - 1 + n }}
       </div>
+    </div>
+    <div class="desc">
+      <div class="former">{{ former }}</div>
+      <div class="latter">{{ latter }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
 const props = defineProps({
-  modelValue: Number
+  modelValue: Number,
+  former: String,
+  latter: String,
+  start: Number,
+  range: Number
 })
 const emit = defineEmits(['update:modelValue'])
 const handleClick = (n) => {
   emit('update:modelValue', n)
-  console.log(n)
 }
 </script>
 
 <style scoped>
+.rate-num {
+  margin-right: 16px;
+}
 .num {
   display: flex;
   justify-content: space-around;
@@ -45,5 +55,9 @@ const handleClick = (n) => {
   background-color: #5997e9;
   color: #fff;
   border: 1px solid #5997e9;
+}
+.desc {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

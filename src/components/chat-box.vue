@@ -20,44 +20,51 @@
           alt="avatar"
         />
       </div>
-      <div class="text">
-        <div style="width: 200px; height: 230px" v-if="img">
-          <ImgComponent style="width: 200px" :imageUrl="'/assets/' + img" />
+      <div class="text-box">
+        <div v-if="type == 'consultant'" class="name">
+          {{ name }}
         </div>
-        <div v-if="advise">
-          {{ JSON.parse(advise).title }}
-        </div>
-        <div v-if="advise" v-html="JSON.parse(advise).content" />
-        <div v-if="type === 'consultant' || type === 'consultant-1'">
-          {{ content }}
-        </div>
-        <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
-          {{ explain }}
-        </p>
-        <van-radio-group v-if="type === 'radio'" v-model="data">
-          <van-radio v-for="choice in content" :key="choice" :name="choice">{{
-            choice
-          }}</van-radio>
-        </van-radio-group>
-        <van-cell-group v-if="type === 'input'" inset>
-          <van-field v-model="data" placeholder="请输入" />
-        </van-cell-group>
 
-        <van-button
-          class="next"
-          v-if="type != 'consultant' && type != 'consultant-1'"
-          @click="handleNewClick"
-          color="#5997e9"
-          :disabled="!data && !!type"
-          >继续<van-icon name="arrow" /></van-button
-        ><van-button
-          class="next"
-          v-if="type === 'consultant-1' || advise"
-          @click="handleNewClick"
-          color="#5997e9"
-          >继续<van-icon name="arrow"
-        /></van-button>
+        <div class="text">
+          <div style="width: 200px; height: 230px" v-if="img">
+            <ImgComponent style="width: 200px" :imageUrl="'/assets/' + img" />
+          </div>
+          <div v-if="advise">
+            {{ JSON.parse(advise).title }}
+          </div>
+          <div v-if="advise" v-html="JSON.parse(advise).content" />
+          <div v-if="type === 'consultant' || type === 'consultant-1'">
+            {{ content }}
+          </div>
+          <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
+            {{ explain }}
+          </p>
+          <van-radio-group v-if="type === 'radio'" v-model="data">
+            <van-radio v-for="choice in content" :key="choice" :name="choice">{{
+              choice
+            }}</van-radio>
+          </van-radio-group>
+          <van-cell-group v-if="type === 'input'" inset>
+            <van-field v-model="data" placeholder="请输入" />
+          </van-cell-group>
+
+          <van-button
+            class="next"
+            v-if="type != 'consultant' && type != 'consultant-1'"
+            @click="handleNewClick"
+            color="#5997e9"
+            :disabled="!data && !!type"
+            >继续<van-icon name="arrow" /></van-button
+          ><van-button
+            class="next"
+            v-if="type === 'consultant-1' || advise"
+            @click="handleNewClick"
+            color="#5997e9"
+            >继续<van-icon name="arrow"
+          /></van-button>
+        </div>
       </div>
+
       <div class="avatar">
         <div
           v-if="type != 'consultant' && type != 'consultant-1'"
@@ -85,6 +92,11 @@ const props = defineProps({
 const emit = defineEmits(['newBtnClick', 'resultChange'])
 
 let data = ref('')
+let name = [1, 4, 5].includes(parseInt(route.params.id))
+  ? '投资顾问王经理'
+  : [2, 6, 7].includes(parseInt(route.params.id))
+  ? 'AI投资顾问小智'
+  : 'AI投资顾问小智+人工顾问'
 const handleNewClick = () => {
   emit('newBtnClick')
 }
@@ -134,7 +146,7 @@ watch(data, (newValue, oldValue) => {
   &::before {
     content: '我';
     font-weight: bold;
-    color: #fff;
+    color: #ddd;
   }
 }
 .text {
@@ -156,5 +168,9 @@ watch(data, (newValue, oldValue) => {
   .van-icon {
     margin-left: 3px;
   }
+}
+.name {
+  color: #fff;
+  margin-left: 0.9rem;
 }
 </style>

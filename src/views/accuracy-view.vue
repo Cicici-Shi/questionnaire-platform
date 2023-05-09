@@ -30,7 +30,23 @@
             :error-message="value[index] || isNew ? '' : '请输入'"
           >
             <template #input>
-              <RateNum v-model="value[index]"></RateNum>
+              <RateNum
+                v-model="value[index]"
+                former="非常低"
+                latter="非常高"
+              ></RateNum>
+            </template> </van-field
+          ><van-field
+            v-if="item.type === 'multi'"
+            :label="item.stem"
+            :error-message="value[index] || isNew ? '' : '请输入'"
+          >
+            <template #input>
+              <RateNum
+                v-model="value[index]"
+                former="非常低"
+                latter="非常高"
+              ></RateNum>
             </template>
           </van-field>
         </template>
@@ -143,7 +159,7 @@ const onSubmit = () => {
 
 <style>
 .van-field__control {
-  height: 46px;
+  min-height: 46px;
 }
 .van-field__label {
   width: 100%;
