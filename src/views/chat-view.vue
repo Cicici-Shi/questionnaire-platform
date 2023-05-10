@@ -38,6 +38,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
 import { useLoadingStore } from '@/store'
+import { specicalQuestionList, isChat2 } from '@/utils'
 const chatConfig = []
 let current = ref(0)
 let currentChat = ref([])
@@ -45,58 +46,59 @@ const disable = ref(false)
 const store = useLoadingStore()
 onBeforeMount(() => {
   store.startLoading()
-  getQuestionAPI('question', route.params.id).then((res) => {
-    const questionList = res[1].question.map((item) => {
-      let data = {
-        id: item.id,
-        chat: [
-          {
-            type: 'consultant',
-            content: item.content,
-            img: item.img
-          },
-          {
-            type: item.answerType,
-            content: item.anwerContent,
-            id: item.id,
-            advise: item.advise
-          }
-        ]
-      }
-      if (item.explain) {
-        data.chat[0].explain = item.explain
-      }
-      if (item.anwerContent) {
-        data.chat[1].content = JSON.parse(item.anwerContent).map((str) =>
-          str.trim()
-        )
-      }
-      if (item.advise) {
-        data.chat[1].type = 'consultant'
-      }
-      return data
-    })
-    for (let i = 0; i < questionList.length; i++) {
-      if (
-        questionList[i].chat[questionList[i].chat.length - 1].type ===
-        null
-      ) {
-        let formatChat = questionList[i].chat.slice(
-          0,
-          questionList[i].chat.length - 1
-        )
-        if (i + 1 >= questionList.length) {
-          questionList.splice(i, 1)
-          break
+  getQuestionAPI(isChat2() ? 'question' : 'question2', route.params.id).then(
+    (res) => {
+      const questionList = res[1].question.map((item) => {
+        let data = {
+          id: item.id,
+          chat: [
+            {
+              type: 'consultant',
+              content: item.content,
+              img: item.img
+            },
+            {
+              type: item.answerType,
+              content: item.anwerContent,
+              id: item.id,
+              advise: item.advise
+            }
+          ]
         }
-        questionList[i + 1].chat.unshift(...formatChat)
-        questionList.splice(i, 1)
-        i--
+        if (item.explain) {
+          data.chat[0].explain = item.explain
+        }
+        if (item.anwerContent) {
+          data.chat[1].content = JSON.parse(item.anwerContent).map((str) =>
+            str.trim()
+          )
+        }
+        if (item.advise) {
+          data.chat[1].type = 'consultant'
+        }
+        return data
+      })
+      for (let i = 0; i < questionList.length; i++) {
+        if (
+          questionList[i].chat[questionList[i].chat.length - 1].type === null
+        ) {
+          let formatChat = questionList[i].chat.slice(
+            0,
+            questionList[i].chat.length - 1
+          )
+          if (i + 1 >= questionList.length) {
+            questionList.splice(i, 1)
+            break
+          }
+          questionList[i + 1].chat.unshift(...formatChat)
+          questionList.splice(i, 1)
+          i--
+        }
       }
+      currentChat.value.push(...questionList[0].chat)
+      chatConfig.push(...questionList)
     }
-    currentChat.value.push(...questionList[0].chat)
-    chatConfig.push(...questionList)
-  })
+  )
 })
 onMounted(() => {
   store.stopLoading()
@@ -119,7 +121,6 @@ let handleNewData = () => {
     currentChat.value.push(chatConfig[current.value].chat[i])
     i++
     nextTick(() => {
-      console.log('滚动')
       scrollToBottom()
     })
   }, 200)
@@ -138,12 +139,17 @@ let handleResult = (resultItem) => {
 }
 const router = useRouter()
 const route = useRoute()
+const questionNaireId = route.params.id
 
 const saveData = () => {
   store.startLoading()
-  submitAPI('question', result.value, false, route.params.id).then(
+  submitAPI('question', result.value, false, questionNaireId).then(
     () => {
-      router.push('/' + route.params.id + '/consultant')
+      if (specicalQuestionList.includes(questionNaireId) && isChat2()) {
+        router.push('/' + questionNaireId + '/chat')
+      } else {
+        router.push('/' + questionNaireId + '/consultant')
+      }
     },
     () => {
       store.stopLoading()
@@ -153,9 +159,13 @@ const saveData = () => {
 
 const submit = () => {
   store.startLoading()
-  submitAPI('question', result.value, true, route.params.id).then(
+  submitAPI('question', result.value, true, questionNaireId).then(
     () => {
-      router.push(`/${route.params.id}/accuracy`)
+      if (specicalQuestionList.includes(questionNaireId) && !isChat2()) {
+        router.push('/' + questionNaireId + '/chat2')
+      } else {
+        router.push(`/${route.params.id}/accuracy`)
+      }
     },
     () => {
       store.stopLoading()

@@ -74,9 +74,7 @@
         </template>
       </van-cell-group>
       <div style="margin-top: 16px" class="footer-button">
-        <van-button block type="primary" :to="'/' + route.params.id + '/chat'">
-          上一页
-        </van-button>
+        <van-button block type="primary" @click="saveData"> 上一页 </van-button>
         <van-button
           block
           type="primary"
@@ -94,6 +92,8 @@
 import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
+import { useLoadingStore } from '@/store'
+import { specicalQuestionList } from '@/utils'
 
 let accuracyConfig = ref([])
 let value = ref([])
@@ -144,6 +144,28 @@ onBeforeMount(async () => {
 const router = useRouter()
 let result = ref([])
 const route = useRoute()
+const store = useLoadingStore()
+const saveData = () => {
+  store.startLoading()
+  result.value = value.value.map((item, index) => {
+    return {
+      questionId: accuracyConfig.value[index].id,
+      answer:
+        typeof item === 'string' || typeof item === 'number'
+          ? item
+          : JSON.stringify(multiValue.value)
+    }
+  })
+  submitAPI('accuracy', result.value, false, route.params.id).then(() => {
+    const questionNaireId = route.params.id
+    if (specicalQuestionList.includes(questionNaireId)) {
+      router.push('/' + route.params.id + '/chat2')
+    } else {
+      router.push('/' + route.params.id + '/chat')
+    }
+  })
+}
+
 const onSubmit = () => {
   for (let i = 0; i < accuracyConfig.value.length; i++) {
     if (accuracyConfig.value[i].type === 'rate' && !value.value[i]) {
@@ -165,7 +187,7 @@ const onSubmit = () => {
           : JSON.stringify(multiValue.value)
     }
   })
-  submitAPI('accuracy', result.value, route.params.id).then(() => {
+  submitAPI('accuracy', result.value, true, route.params.id).then(() => {
     router.push(`/${route.params.id}/info`)
   })
 }

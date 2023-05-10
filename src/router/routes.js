@@ -20,6 +20,11 @@ const routes = [
     meta: { index: 3 }
   },
   {
+    path: '/:id/chat2',
+    component: () => import('../views/chat-view.vue'),
+    meta: { index: 3 }
+  },
+  {
     path: '/:id/accuracy',
     component: () => import('../views/accuracy-view.vue'),
     meta: { index: 4 }
