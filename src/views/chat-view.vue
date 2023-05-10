@@ -18,13 +18,21 @@
         @resultChange="handleResult"
       ></ChatBox>
     </div>
-    <van-button
-      v-if="disable"
-      type="primary"
-      @click="submit"
-      :to="'/' + route.params.id + '/accuracy'"
-      >下一页<van-icon name="guide-o"
-    /></van-button>
+    <footer class="footer-button">
+      <van-button
+        v-if="disable"
+        type="primary"
+        :to="'/' + route.params.id + '/consultant'"
+        >上一页</van-button
+      >
+      <van-button
+        v-if="disable"
+        type="primary"
+        @click="submit"
+        :to="'/' + route.params.id + '/accuracy'"
+        >下一页</van-button
+      >
+    </footer>
   </div>
 </template>
 
@@ -81,6 +89,10 @@ onBeforeMount(() => {
           0,
           questionList.value[i].chat.length - 1
         )
+        if (i + 1 >= questionList.value.length) {
+          questionList.value.splice(i, 1)
+          break
+        }
         questionList.value[i + 1].chat.unshift(...formatChat)
         questionList.value.splice(i, 1)
         i--
@@ -128,17 +140,16 @@ const route = useRoute()
 
 const submit = () => {
   submitAPI('question', result.value, route.params.id).then(() => {
-    router.push('/accuracy')
+    router.push(`/${route.params.id}/accuracy`)
   })
 }
 </script>
 
 <style scoped lang="less">
 .van-button {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
+  width: 50vw;
+  border: 1px solid #8b8d9d;
+  border-radius: 0%;
 }
 .chat {
   color: #343541;

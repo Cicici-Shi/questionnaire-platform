@@ -32,33 +32,62 @@
             <template #input>
               <RateNum
                 v-model="value[index]"
-                former="非常低"
-                latter="非常高"
-              ></RateNum>
-            </template> </van-field
-          ><van-field
-            v-if="item.type === 'multi'"
-            :label="item.stem"
-            :error-message="value[index] || isNew ? '' : '请输入'"
-          >
-            <template #input>
-              <RateNum
-                v-model="value[index]"
-                former="非常低"
-                latter="非常高"
+                :start="item.low"
+                :range="item.height"
+                :former="item.lowText"
+                :latter="item.highText"
               ></RateNum>
             </template>
           </van-field>
+          <van-field
+            class="multi"
+            v-if="item.type === 'multi'"
+            :label="item.stem.main"
+            :error-message="
+              isNew
+                ? ''
+                : isEmpty
+                ? '请输入'
+                : isSumTen
+                ? ''
+                : '总分必须等于10分'
+            "
+          >
+            <template #input>
+              <RateNum
+                v-for="(little, i) in item.stem.littles"
+                :key="little"
+                :label="little.stem"
+                v-model="multiValue[i]"
+                :start="little.low"
+                :range="little.height"
+                :former="little.lowText"
+                :latter="little.highText"
+              ></RateNum>
+            </template>
+          </van-field>
+          <div v-if="item.type === 'multi'">
+            您按照重要程度给上述三个方面分配的分值依次为(
+            {{ multiValue[0] }} )分、（ {{ multiValue[1] }} ）分、（
+            {{ multiValue[2] }} ）分。 请注意：总分必须等于10分。
+          </div>
         </template>
       </van-cell-group>
-      <div style="margin: 16px">
+      <div style="margin-top: 16px" class="footer-button">
+        <van-button
+          block
+          type="primary"
+          :to="'/' + route.params.id + '/chat'"
+        >
+          上一页
+        </van-button>
         <van-button
           block
           type="primary"
           native-type="submit"
           @click="isNew = false"
         >
-          下一页<van-icon name="guide-o" />
+          下一页
         </van-button>
       </div>
     </van-form>
@@ -66,29 +95,52 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 
 let accuracyConfig = ref([])
-let value = ref(Array(accuracyConfig.value.length).fill(null))
+let value = ref([])
 let isNew = ref(true)
 let errMsg = ref([])
+let indexes = ref([])
+let multiValue = ref(Array(3).fill(null))
+const isEmpty = computed(() => multiValue.value.some((value) => value == null))
+const isSumTen = computed(
+  () => multiValue.value.reduce((acc, value) => acc + value, 0) === 10
+)
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   window.scrollTo(0, 0)
-  getQuestionAPI('accuracy', route.params.id).then((res) => {
+  await getQuestionAPI('accuracy', route.params.id).then((res) => {
     accuracyConfig.value = res[1].accuracy.map((item) => {
       let data = {
         stem: item.stem,
         type: item.type,
-        id: item.id
+        id: item.id,
+        low: item.low,
+        height: item.height,
+        lowText: item.lowText,
+        highText: item.highText
+      }
+      if (item.type == 'multi') {
+        data.stem = JSON.parse(item.stem)
       }
       if (item.content) {
         data.content = JSON.parse(item.content).map((str) => str.trim())
       }
       return data
     })
+  })
+  indexes.value = accuracyConfig.value.reduce((acc, obj, index) => {
+    if (obj.type == 'multi') {
+      acc.push(index)
+    }
+    return acc
+  }, [])
+  value.value = Array(accuracyConfig.value.length).fill(null)
+  indexes.value.forEach((x) => {
+    value.value[x] = Array(3).fill(null)
   })
   errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
 })
@@ -102,12 +154,19 @@ const onSubmit = () => {
       console.log('请完整输入表单')
       return
     }
+    if (accuracyConfig.value[i].type === 'multi' && !isSumTen.value) {
+      console.log('总和须等于10')
+      return
+    }
   }
 
   result.value = value.value.map((item, index) => {
     return {
       questionId: accuracyConfig.value[index].id,
-      answer: item
+      answer:
+        typeof item === 'string' || typeof item === 'number'
+          ? item
+          : JSON.stringify(multiValue.value)
     }
   })
   submitAPI('accuracy', result.value, route.params.id).then(() => {
@@ -136,11 +195,16 @@ const onSubmit = () => {
     bottom: -25px;
   }
 }
-.van-button {
+.footer-button {
   position: fixed;
   right: 0;
   bottom: 0;
   width: 100vw;
+}
+.van-button {
+  width: 50vw;
+  border: 1px solid #8b8d9d;
+  border-radius: 0%;
 }
 .van-field {
   flex-direction: column;
@@ -170,5 +234,10 @@ const onSubmit = () => {
 .van-radio__icon--checked .van-icon {
   background-color: #5997e9;
   border-color: #5997e9;
+}
+.multi .van-field__control {
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
 }
 </style>

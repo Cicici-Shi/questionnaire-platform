@@ -1,15 +1,16 @@
 <template>
   <div class="rate-num">
+    <div class="label">{{ label }}</div>
     <div class="num">
       <div
-        v-for="n in 10"
+        v-for="n in range"
         :key="n"
         class="num-item"
         :value="modelValue"
         @click="handleClick(n)"
         :class="{ checked: modelValue === n }"
       >
-        {{ 1 - 1 + n }}
+        {{ start + n }}
       </div>
     </div>
     <div class="desc">
@@ -25,7 +26,8 @@ const props = defineProps({
   former: String,
   latter: String,
   start: Number,
-  range: Number
+  range: Number,
+  label: String
 })
 const emit = defineEmits(['update:modelValue'])
 const handleClick = (n) => {

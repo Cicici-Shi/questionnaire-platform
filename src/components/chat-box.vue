@@ -107,6 +107,10 @@ watch(data, (newValue, oldValue) => {
 </script>
 
 <style scoped lang="less">
+.text {
+  display: flex;
+  flex-direction: column;
+}
 .reverse-chat-box {
   display: flex;
   padding: 1rem;

@@ -136,3 +136,7 @@ button:focus-visible {
 .van-icon {
   margin-left: 10px;
 }
+
+.footer-button {
+  display: flex;
+}

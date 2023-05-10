@@ -52,12 +52,25 @@
             :error-message="value[index] || isNew ? '' : '请输入'"
           >
             <template #input>
-              <RateNum v-model="value[index]"></RateNum>
+              <RateNum
+                v-model="value[index]"
+                :start="item.low"
+                :range="item.height"
+                :former="item.lowText"
+                :latter="item.highText"
+              ></RateNum>
             </template>
           </van-field>
         </template>
       </van-cell-group>
-      <div style="margin: 16px">
+      <div style="margin: 16px" class="footer-button">
+        <van-button
+          block
+          type="primary"
+          :to="'/' + route.params.id + '/accuracy'"
+        >
+          上一页
+        </van-button>
         <van-button
           block
           type="primary"
@@ -86,7 +99,11 @@ onBeforeMount(async () => {
           let data = {
             stem: item.questionContent,
             type: item.answerType,
-            id: item.id
+            id: item.id,
+            low: item.low,
+            height: item.height,
+            lowText: item.lowText,
+            highText: item.highText
           }
           if (item.answerContent) {
             data.content = JSON.parse(item.answerContent).map((str) =>
@@ -125,10 +142,10 @@ const onSubmit = () => {
   if (index !== -1) {
     result[index] = {
       questionId: infoConfig.value[index].id,
-      answer: `${year.value} '-' ${month.value}`
+      answer: JSON.stringify([year.value, month.value])
     }
   }
-  submitAPI('info', result.value, route.params.id).then(() => {
+  submitAPI('info', result, route.params.id).then(() => {
     router.push(`/${route.params.id}/end`)
   })
 }
@@ -142,11 +159,17 @@ const onSubmit = () => {
   display: flex;
   justify-content: space-evenly;
 }
-.van-button {
+.footer-button {
   position: fixed;
   right: 0;
   bottom: 0;
   width: 100vw;
+}
+
+.van-button {
+  width: 50vw;
+  border: 1px solid #8b8d9d;
+  border-radius: 0%;
 }
 .van-cell-group--inset {
   margin: 0;
