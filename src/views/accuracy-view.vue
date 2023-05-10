@@ -73,14 +73,21 @@
           </div>
         </template>
       </van-cell-group>
-      <div style="margin: 16px">
+      <div style="margin-top: 16px" class="footer-button">
+        <van-button
+          block
+          type="primary"
+          :to="'/' + route.params.id + '/chat'"
+        >
+          上一页
+        </van-button>
         <van-button
           block
           type="primary"
           native-type="submit"
           @click="isNew = false"
         >
-          下一页<van-icon name="guide-o" />
+          下一页
         </van-button>
       </div>
     </van-form>
@@ -188,11 +195,16 @@ const onSubmit = () => {
     bottom: -25px;
   }
 }
-.van-button {
+.footer-button {
   position: fixed;
   right: 0;
   bottom: 0;
   width: 100vw;
+}
+.van-button {
+  width: 50vw;
+  border: 1px solid #8b8d9d;
+  border-radius: 0%;
 }
 .van-field {
   flex-direction: column;

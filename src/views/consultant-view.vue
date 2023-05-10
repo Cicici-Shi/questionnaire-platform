@@ -7,9 +7,14 @@
     <p style="text-indent: 2em; font-weight: 700">
       {{ consultant.content2 }}
     </p>
-    <van-button round type="primary" :to="'/' + route.params.id + '/chat'"
-      >下一页</van-button
-    >
+    <footer class="footer-button">
+      <van-button type="primary" :to="'/' + route.params.id + '/main'"
+        >上一页</van-button
+      >
+      <van-button type="primary" :to="'/' + route.params.id + '/chat'"
+        >下一页</van-button
+      >
+    </footer>
   </div>
 </template>
 
@@ -35,6 +40,11 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
+.van-button {
+  width: 50vw;
+  border: 1px solid #343541;
+  margin-top: 2em;
+}
 .consultant {
   color: #fff;
   background-color: #181729;
@@ -48,8 +58,5 @@ img {
   margin-left: auto;
   margin-right: auto;
   max-height: 30vh;
-}
-.van-button {
-  margin-top: 2em;
 }
 </style>

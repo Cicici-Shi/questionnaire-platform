@@ -63,7 +63,14 @@
           </van-field>
         </template>
       </van-cell-group>
-      <div style="margin: 16px">
+      <div style="margin: 16px" class="footer-button">
+        <van-button
+          block
+          type="primary"
+          :to="'/' + route.params.id + '/accuracy'"
+        >
+          上一页
+        </van-button>
         <van-button
           block
           type="primary"
@@ -152,11 +159,17 @@ const onSubmit = () => {
   display: flex;
   justify-content: space-evenly;
 }
-.van-button {
+.footer-button {
   position: fixed;
   right: 0;
   bottom: 0;
   width: 100vw;
+}
+
+.van-button {
+  width: 50vw;
+  border: 1px solid #8b8d9d;
+  border-radius: 0%;
 }
 .van-cell-group--inset {
   margin: 0;

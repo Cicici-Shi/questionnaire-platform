@@ -38,18 +38,10 @@ const route = useRoute()
 </script>
 
 <style scoped lang="less">
-// .main {
-//   position: relative;
-// }
 .content {
   border-bottom: 1px solid #222;
   p {
     text-indent: 2em;
   }
 }
-// .van-button {
-//   position: absolute;
-//   right: 10vw;
-//   bottom: 5vh;
-// }
 </style>
