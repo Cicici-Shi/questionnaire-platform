@@ -19,13 +19,18 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref, onMounted } from 'vue'
 import { getQuestionAPI } from '@/services/main'
 import { useRoute } from 'vue-router'
+import { useLoadingStore } from '@/store'
+
+const store = useLoadingStore()
 const route = useRoute()
 let consultant = ref({ content1: '', content2: '', img: '' })
-onBeforeMount(() => {
-  getQuestionAPI('consultant', route.params.id).then((res) => {
+
+onBeforeMount(async () => {
+  store.startLoading()
+  await getQuestionAPI('consultant', route.params.id).then((res) => {
     const consultantInfo = res[1].consultant
     const content1 = consultantInfo.content1
     const content2 = consultantInfo.content2
@@ -36,6 +41,10 @@ onBeforeMount(() => {
       img
     }
   })
+})
+
+onMounted(() => {
+  store.stopLoading()
 })
 </script>
 

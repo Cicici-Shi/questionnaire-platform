@@ -74,11 +74,7 @@
         </template>
       </van-cell-group>
       <div style="margin-top: 16px" class="footer-button">
-        <van-button
-          block
-          type="primary"
-          :to="'/' + route.params.id + '/chat'"
-        >
+        <van-button block type="primary" :to="'/' + route.params.id + '/chat'">
           上一页
         </van-button>
         <van-button
@@ -196,6 +192,7 @@ const onSubmit = () => {
   }
 }
 .footer-button {
+  left: 0;
   position: fixed;
   right: 0;
   bottom: 0;

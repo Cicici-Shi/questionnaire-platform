@@ -19,17 +19,10 @@
       ></ChatBox>
     </div>
     <footer class="footer-button">
-      <van-button
-        v-if="disable"
-        type="primary"
-        :to="'/' + route.params.id + '/consultant'"
+      <van-button type="primary" :to="'/' + route.params.id + '/consultant'"
         >上一页</van-button
       >
-      <van-button
-        v-if="disable"
-        type="primary"
-        @click="submit"
-        :to="'/' + route.params.id + '/accuracy'"
+      <van-button v-if="disable" type="primary" @click="submit"
         >下一页</van-button
       >
     </footer>
@@ -37,18 +30,19 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onBeforeMount } from 'vue'
+import { ref, nextTick, onBeforeMount, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
-
+import { useLoadingStore } from '@/store'
 const chatConfig = []
 let questionList = ref([])
 let current = ref(0)
 let currentChat = ref([])
 const disable = ref(false)
-
+const store = useLoadingStore()
 onBeforeMount(() => {
+  store.startLoading()
   getQuestionAPI('question', route.params.id).then((res) => {
     questionList.value = res[1].question.map((item) => {
       let data = {
@@ -102,6 +96,9 @@ onBeforeMount(() => {
     chatConfig.push(...questionList.value)
   })
 })
+onMounted(() => {
+  store.stopLoading()
+})
 
 let handleNewData = () => {
   if (current.value === chatConfig.length - 1) {
@@ -139,15 +136,21 @@ const router = useRouter()
 const route = useRoute()
 
 const submit = () => {
-  submitAPI('question', result.value, route.params.id).then(() => {
-    router.push(`/${route.params.id}/accuracy`)
-  })
+  store.startLoading()
+  submitAPI('question', result.value, route.params.id).then(
+    () => {
+      router.push(`/${route.params.id}/accuracy`)
+    },
+    () => {
+      store.stopLoading()
+    }
+  )
 }
 </script>
 
 <style scoped lang="less">
 .van-button {
-  width: 50vw;
+  flex: 1;
   border: 1px solid #8b8d9d;
   border-radius: 0%;
 }

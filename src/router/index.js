@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { useLoadingStore } from '@/store'
 import routes from './routes.js'
 
 const router = createRouter({
@@ -6,15 +7,14 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   // 判断是否后退
-//   if (from && to && from && to && from.meta.index >= to.meta.index) {
-//     // 阻止后退
-//     next(false)
-//   } else {
-//     // 其他情况正常跳转
-//     next()
-//   }
-// })
+router.beforeEach((to, from) => {
+  const store = useLoadingStore()
+  // 判断是否后退
+  if (from && to && from && to && from.meta.index >= to.meta.index) {
+    store.startLoading()
+  } else {
+    store.stopLoading()
+  }
+})
 
 export default router

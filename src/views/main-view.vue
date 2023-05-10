@@ -27,12 +27,17 @@
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, onMounted } from 'vue'
 import { loginAPI } from '@/services/user'
 import { useRoute } from 'vue-router'
-
+import { useLoadingStore } from '@/store'
+const store = useLoadingStore()
 onBeforeMount(async () => {
+  store.startLoading()
   await loginAPI()
+})
+onMounted(() => {
+  store.stopLoading()
 })
 const route = useRoute()
 </script>

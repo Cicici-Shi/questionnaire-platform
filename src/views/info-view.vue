@@ -63,7 +63,7 @@
           </van-field>
         </template>
       </van-cell-group>
-      <div style="margin: 16px" class="footer-button">
+      <div class="footer-button">
         <van-button
           block
           type="primary"
@@ -160,6 +160,7 @@ const onSubmit = () => {
   justify-content: space-evenly;
 }
 .footer-button {
+  left: 0;
   position: fixed;
   right: 0;
   bottom: 0;
