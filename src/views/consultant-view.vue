@@ -8,9 +8,6 @@
       {{ consultant.content2 }}
     </p>
     <footer class="footer-button">
-      <van-button type="primary" :to="'/' + route.params.id + '/main'"
-        >上一页</van-button
-      >
       <van-button type="primary" :to="'/' + route.params.id + '/chat'"
         >下一页</van-button
       >
@@ -50,7 +47,7 @@ onMounted(() => {
 
 <style scoped>
 .van-button {
-  width: 50vw;
+  flex: 1;
   border: 1px solid #343541;
   margin-top: 2em;
 }

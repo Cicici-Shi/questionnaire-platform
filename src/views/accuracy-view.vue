@@ -173,7 +173,9 @@ const onSubmit = () => {
 
 <style scoped lang="less">
 .accuracy {
-  padding: 40px 1rem 60px;
+  padding: 40px 1rem 90px;
+  height: calc(100% - 90px);
+  overflow: scroll;
 }
 .van-rate {
   position: relative;

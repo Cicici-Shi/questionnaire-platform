@@ -19,7 +19,10 @@
       ></ChatBox>
     </div>
     <footer class="footer-button">
-      <van-button type="primary" :to="'/' + route.params.id + '/consultant'"
+      <van-button
+        type="primary"
+        :to="'/' + route.params.id + '/consultant'"
+        @click="saveData"
         >上一页</van-button
       >
       <van-button v-if="disable" type="primary" @click="submit"
@@ -36,7 +39,6 @@ import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
 import { useLoadingStore } from '@/store'
 const chatConfig = []
-let questionList = ref([])
 let current = ref(0)
 let currentChat = ref([])
 const disable = ref(false)
@@ -44,7 +46,7 @@ const store = useLoadingStore()
 onBeforeMount(() => {
   store.startLoading()
   getQuestionAPI('question', route.params.id).then((res) => {
-    questionList.value = res[1].question.map((item) => {
+    const questionList = res[1].question.map((item) => {
       let data = {
         id: item.id,
         chat: [
@@ -74,26 +76,26 @@ onBeforeMount(() => {
       }
       return data
     })
-    for (let i = 0; i < questionList.value.length; i++) {
+    for (let i = 0; i < questionList.length; i++) {
       if (
-        questionList.value[i].chat[questionList.value[i].chat.length - 1]
-          .type === null
+        questionList[i].chat[questionList[i].chat.length - 1].type ===
+        null
       ) {
-        let formatChat = questionList.value[i].chat.slice(
+        let formatChat = questionList[i].chat.slice(
           0,
-          questionList.value[i].chat.length - 1
+          questionList[i].chat.length - 1
         )
-        if (i + 1 >= questionList.value.length) {
-          questionList.value.splice(i, 1)
+        if (i + 1 >= questionList.length) {
+          questionList.splice(i, 1)
           break
         }
-        questionList.value[i + 1].chat.unshift(...formatChat)
-        questionList.value.splice(i, 1)
+        questionList[i + 1].chat.unshift(...formatChat)
+        questionList.splice(i, 1)
         i--
       }
     }
-    currentChat.value.push(...questionList.value[0].chat)
-    chatConfig.push(...questionList.value)
+    currentChat.value.push(...questionList[0].chat)
+    chatConfig.push(...questionList)
   })
 })
 onMounted(() => {
@@ -117,10 +119,12 @@ let handleNewData = () => {
     currentChat.value.push(chatConfig[current.value].chat[i])
     i++
     nextTick(() => {
+      console.log('滚动')
       scrollToBottom()
     })
   }, 200)
 }
+
 let result = ref([])
 let handleResult = (resultItem) => {
   const index = result.value.findIndex(
@@ -135,9 +139,21 @@ let handleResult = (resultItem) => {
 const router = useRouter()
 const route = useRoute()
 
+const saveData = () => {
+  store.startLoading()
+  submitAPI('question', result.value, false, route.params.id).then(
+    () => {
+      router.push('/' + route.params.id + '/consultant')
+    },
+    () => {
+      store.stopLoading()
+    }
+  )
+}
+
 const submit = () => {
   store.startLoading()
-  submitAPI('question', result.value, route.params.id).then(
+  submitAPI('question', result.value, true, route.params.id).then(
     () => {
       router.push(`/${route.params.id}/accuracy`)
     },
