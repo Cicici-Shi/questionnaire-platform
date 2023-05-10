@@ -132,7 +132,7 @@ const route = useRoute()
 
 const submit = () => {
   submitAPI('question', result.value, route.params.id).then(() => {
-    router.push('/accuracy')
+    router.push(`/${route.params.id}/accuracy`)
   })
 }
 </script>

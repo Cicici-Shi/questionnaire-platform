@@ -52,7 +52,13 @@
             :error-message="value[index] || isNew ? '' : '请输入'"
           >
             <template #input>
-              <RateNum v-model="value[index]"></RateNum>
+              <RateNum
+                v-model="value[index]"
+                :start="item.low"
+                :range="item.height"
+                :former="item.lowText"
+                :latter="item.highText"
+              ></RateNum>
             </template>
           </van-field>
         </template>
@@ -86,7 +92,11 @@ onBeforeMount(async () => {
           let data = {
             stem: item.questionContent,
             type: item.answerType,
-            id: item.id
+            id: item.id,
+            low: item.low,
+            height: item.height,
+            lowText: item.lowText,
+            highText: item.highText
           }
           if (item.answerContent) {
             data.content = JSON.parse(item.answerContent).map((str) =>
@@ -125,10 +135,10 @@ const onSubmit = () => {
   if (index !== -1) {
     result[index] = {
       questionId: infoConfig.value[index].id,
-      answer: `${year.value} '-' ${month.value}`
+      answer: JSON.stringify([year.value, month.value])
     }
   }
-  submitAPI('info', result.value, route.params.id).then(() => {
+  submitAPI('info', result, route.params.id).then(() => {
     router.push(`/${route.params.id}/end`)
   })
 }

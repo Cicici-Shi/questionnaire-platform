@@ -147,6 +147,10 @@ const onSubmit = () => {
       console.log('请完整输入表单')
       return
     }
+    if (accuracyConfig.value[i].type === 'multi' && !isSumTen.value) {
+      console.log('总和须等于10')
+      return
+    }
   }
 
   result.value = value.value.map((item, index) => {
