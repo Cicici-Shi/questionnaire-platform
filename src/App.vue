@@ -3,7 +3,6 @@ import { useLoadingStore } from '@/store'
 import { storeToRefs } from 'pinia'
 const store = useLoadingStore()
 const { show } = storeToRefs(store)
-console.log('show : ', show)
 </script>
 
 <template>

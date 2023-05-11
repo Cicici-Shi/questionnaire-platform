@@ -10,10 +10,12 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   const store = useLoadingStore()
   // 判断是否后退
-  if (from && to && from && to && from.meta.index >= to.meta.index) {
+  if (from && to && from && to && from?.meta?.index > to?.meta?.index) {
     store.startLoading()
+    return false
   } else {
-    store.stopLoading()
+    store.startLoading()
+    return true
   }
 })
 

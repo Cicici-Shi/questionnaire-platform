@@ -4,42 +4,7 @@
     <p style="text-indent: 2em; font-weight: 700">
       投资顾问对您的服务已经结束。因为研究中需要了解您刚刚填写的“用于评估风险承受程度的个人信息”的真实程度如何，所以请您就以上回答的真实程度逐一做出评价:
     </p>
-    <template v-if="done">
-      <div class="result-box" v-for="item in accuracyConfig" :key="item.stem">
-        <template v-if="item.type == 'multi'">
-          <div class="label" style="font-weight: 700">{{ item.stem.main }}</div>
-          <div
-            class="little"
-            v-for="(obj, index) in item.stem.littles"
-            :key="obj.stem"
-          >
-            {{ obj.stem }}
-            <div class="result">{{ JSON.parse(item.result)[index] }}</div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="label" style="font-weight: 700">{{ item.stem }}</div>
-          <div class="result">{{ item.result }}</div>
-        </template>
-        <div style="margin-top: 16px" class="footer-button">
-          <van-button
-            block
-            type="primary"
-            :to="'/' + route.params.id + '/chat'"
-          >
-            上一页
-          </van-button>
-          <van-button
-            block
-            type="primary"
-            :to="'/' + route.params.id + '/info'"
-          >
-            下一页
-          </van-button>
-        </div>
-      </div>
-    </template>
-    <van-form v-else @submit="onSubmit">
+    <van-form @submit="onSubmit">
       <van-cell-group inset>
         <template v-for="(item, index) in accuracyConfig" :key="item.stem">
           <van-field
@@ -51,6 +16,7 @@
             <template #input>
               <van-radio-group v-model="value[index]" direction="horizontal">
                 <van-radio
+                  :disabled="done"
                   v-for="choice in item.content"
                   :key="choice"
                   :name="choice"
@@ -66,6 +32,7 @@
           >
             <template #input>
               <RateNum
+                :disabled="done"
                 v-model="value[index]"
                 :start="item.low"
                 :range="item.height"
@@ -90,6 +57,7 @@
           >
             <template #input>
               <RateNum
+                :disabled="done"
                 v-for="(little, i) in item.stem.littles"
                 :key="little"
                 :label="little.stem"
@@ -137,6 +105,10 @@ let errMsg = ref([])
 let indexes = ref([])
 let multiValue = ref(Array(3).fill(null))
 let done = ref(false)
+const router = useRouter()
+let result = ref([])
+const route = useRoute()
+const store = useLoadingStore()
 
 const isEmpty = computed(() => multiValue.value.some((value) => value == null))
 const isSumTen = computed(
@@ -177,46 +149,95 @@ onBeforeMount(async () => {
     if (done.value) {
       accuracyConfig.value.forEach((item) => {
         const accuracy = res[1].accuracyResult[0].resultDetail.find((a) => {
-          if(a.accuracyQuestionId === item.id) return a
+          if (a.accuracyQuestionId === item.id) return a
         })
         item.result = accuracy.answer
       })
     } else {
-      value.value = Array(accuracyConfig.value.length).fill(null)
-      indexes.value.forEach((x) => {
-        value.value[x] = Array(3).fill(null)
-      })
+      // value.value = Array(accuracyConfig.value.length).fill(null)
+      // indexes.value.forEach((x) => {
+      //   value.value[x] = Array(3).fill(null)
+      // })
+      console.log(value.value)
       errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
     }
+    recoverData(res[1].accuracyResult)
   })
 })
 
-const router = useRouter()
-let result = ref([])
-const route = useRoute()
-const store = useLoadingStore()
 const saveData = () => {
   store.startLoading()
-  result.value = value.value.map((item, index) => {
-    return {
+  if (done.value) {
+    navToPrevPage()
+  } else {
+    result.value = wrapResult()
+    submitAPI('accuracy', result.value, false, route.params.id).then(() => {
+      navToPrevPage()
+    })
+  }
+}
+
+const navToPrevPage = () => {
+  const questionNaireId = route.params.id
+  if (specicalQuestionList.includes(questionNaireId)) {
+    router.push('/' + route.params.id + '/chat2')
+  } else {
+    router.push('/' + route.params.id + '/chat')
+  }
+}
+
+const onSubmit = () => {
+  if (done.value) {
+    router.push(`/${route.params.id}/info`)
+  } else {
+    checkForm()
+    result.value = wrapResult()
+    submitAPI('accuracy', result.value, true, route.params.id).then(() => {
+      router.push(`/${route.params.id}/info`)
+    })
+  }
+}
+
+const recoverData = (resultlist) => {
+  if (resultlist.length) {
+    const answerObjList = resultlist[0].resultDetail
+    const questionAnswerMap = new Map()
+    answerObjList.forEach((ansObj) => {
+      questionAnswerMap.set(ansObj.accuracyQuestionId, ansObj.answer)
+    })
+    const tempvalue = []
+    accuracyConfig.value.forEach((config, index) => {
+      const questionId = config.id
+      if (questionAnswerMap.has(questionId)) {
+        if (config.type == 'rate') {
+          tempvalue[index] = parseInt(questionAnswerMap.get(questionId))
+        } else if (config.type == 'multi') {
+          multiValue.value = JSON.parse(questionAnswerMap.get(questionId))
+        } else {
+          tempvalue[index] = questionAnswerMap.get(questionId)
+        }
+      }
+    })
+    value.value = tempvalue
+  }
+}
+
+const wrapResult = () => {
+  const tempResult = []
+  for (let index = 0; index < value.value.length; index++) {
+    const item = value.value[index]
+    tempResult[index] = {
       questionId: accuracyConfig.value[index].id,
       answer:
         typeof item === 'string' || typeof item === 'number'
           ? item
           : JSON.stringify(multiValue.value)
     }
-  })
-  submitAPI('accuracy', result.value, false, route.params.id).then(() => {
-    const questionNaireId = route.params.id
-    if (specicalQuestionList.includes(questionNaireId)) {
-      router.push('/' + route.params.id + '/chat2')
-    } else {
-      router.push('/' + route.params.id + '/chat')
-    }
-  })
+  }
+  return tempResult
 }
 
-const onSubmit = () => {
+const checkForm = () => {
   for (let i = 0; i < accuracyConfig.value.length; i++) {
     if (accuracyConfig.value[i].type === 'rate' && !value.value[i]) {
       console.log('请完整输入表单')
@@ -227,19 +248,6 @@ const onSubmit = () => {
       return
     }
   }
-
-  result.value = value.value.map((item, index) => {
-    return {
-      questionId: accuracyConfig.value[index].id,
-      answer:
-        typeof item === 'string' || typeof item === 'number'
-          ? item
-          : JSON.stringify(multiValue.value)
-    }
-  })
-  submitAPI('accuracy', result.value, true, route.params.id).then(() => {
-    router.push(`/${route.params.id}/info`)
-  })
 }
 </script>
 

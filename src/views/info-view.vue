@@ -14,6 +14,7 @@
             <template #input>
               <van-radio-group v-model="value[index]" direction="horizontal">
                 <van-radio
+                  :disabled="done"
                   v-for="choice in item.content"
                   :key="choice"
                   :name="choice"
@@ -26,6 +27,7 @@
             v-if="item.type === 'input'"
             v-model="value[index]"
             :label="item.stem"
+            :disabled="done"
             placeholder="请输入"
             :rules="[{ required: true, message: '请输入' }]"
           />
@@ -34,6 +36,7 @@
               v-model="year"
               name="year"
               :label="item.stem"
+              :disabled="done"
               placeholder="请输入"
               :rules="[{ required: true, message: '请输入' }]"
             />
@@ -42,6 +45,7 @@
               v-model="month"
               name="month"
               placeholder="请输入"
+              :disabled="done"
               :rules="[{ required: true, message: '请输入' }]"
             />
             <div class="mark">月</div>
@@ -53,6 +57,7 @@
           >
             <template #input>
               <RateNum
+                :disabled="done"
                 v-model="value[index]"
                 :start="item.low"
                 :range="item.height"
@@ -64,13 +69,7 @@
         </template>
       </van-cell-group>
       <div class="footer-button">
-        <van-button
-          block
-          type="primary"
-          :to="'/' + route.params.id + '/accuracy'"
-        >
-          上一页
-        </van-button>
+        <van-button block type="primary" @click="saveData"> 上一页 </van-button>
         <van-button
           block
           type="primary"
@@ -91,6 +90,37 @@ import { useRouter, useRoute } from 'vue-router'
 const route = useRoute()
 let infoConfig = ref([])
 let isNew = ref(true)
+let done = ref(false)
+
+const isDone = (res) => {
+  done.value = res?.infoResult?.[0].done || false
+}
+
+const recoverData = (resultlist) => {
+  if (resultlist.length) {
+    const answerObjList = resultlist[0].resultDetail
+    const questionAnswerMap = new Map()
+    answerObjList.forEach((ansObj) => {
+      questionAnswerMap.set(ansObj.infoQuestionId, ansObj.answer)
+    })
+    const tempvalue = []
+    infoConfig.value.forEach((config, index) => {
+      const questionId = config.id
+      if (questionAnswerMap.has(questionId)) {
+        if (config.type === 'year_month') {
+          year.value = JSON.parse(questionAnswerMap.get(questionId))[0]
+          month.value = JSON.parse(questionAnswerMap.get(questionId))[1]
+        } else if (config.type == 'rate') {
+          tempvalue[index] = parseInt(questionAnswerMap.get(questionId))
+        } else {
+          tempvalue[index] = questionAnswerMap.get(questionId)
+        }
+      }
+    })
+    value.value = tempvalue
+  }
+}
+
 onBeforeMount(async () => {
   await getQuestionAPI('info', route.params.id).then((res) => {
     infoConfig.value = JSON.parse(
@@ -114,6 +144,8 @@ onBeforeMount(async () => {
         })
       )
     )
+    isDone(res[1])
+    recoverData(res[1].infoResult)
   })
   errMsg.value = ref(Array(infoConfig.value.length).fill(''))
 })
@@ -126,28 +158,64 @@ let errMsg = ref([])
 let result = []
 const router = useRouter()
 const onSubmit = () => {
-  for (let i = 0; i < infoConfig.value.length; i++) {
-    if (infoConfig.value[i].type === 'rate' && !value.value[i]) {
-      console.log('请完整输入表单')
-      return
-    }
-  }
-  result = value.value.map((item, index) => {
-    return {
-      questionId: infoConfig.value[index].id,
-      answer: item
-    }
-  })
-  const index = infoConfig.value.findIndex((item) => item.type === 'year_month')
-  if (index !== -1) {
-    result[index] = {
-      questionId: infoConfig.value[index].id,
-      answer: JSON.stringify([year.value, month.value])
-    }
-  }
-  submitAPI('info', result, route.params.id).then(() => {
+  if (done.value) {
     router.push(`/${route.params.id}/end`)
-  })
+  } else {
+    for (let i = 0; i < infoConfig.value.length; i++) {
+      if (infoConfig.value[i].type === 'rate' && !value.value[i]) {
+        console.log('请完整输入表单')
+        return
+      }
+    }
+    result = value.value.map((item, index) => {
+      return {
+        questionId: infoConfig.value[index].id,
+        answer: item
+      }
+    })
+    const index = infoConfig.value.findIndex(
+      (item) => item.type === 'year_month'
+    )
+    if (index !== -1) {
+      result[index] = {
+        questionId: infoConfig.value[index].id,
+        answer: JSON.stringify([year.value, month.value])
+      }
+    }
+    submitAPI('info', result, true, route.params.id).then(() => {
+      router.push(`/${route.params.id}/end`)
+    })
+  }
+}
+
+const saveData = () => {
+  if (done.value) {
+    router.push(`/${route.params.id}/accuracy`)
+  } else {
+    result = value.value.map((item, index) => {
+      return {
+        questionId: infoConfig.value[index].id,
+        answer: item || ''
+      }
+    })
+    const index = infoConfig.value.findIndex(
+      (item) => item.type === 'year_month'
+    )
+    if (index !== -1) {
+      result[index] = {
+        questionId: infoConfig.value[index].id,
+        answer: JSON.stringify([year.value, month.value])
+      }
+    }
+    submitAPI(
+      'info',
+      result.filter((item) => !!item),
+      false,
+      route.params.id
+    ).then(() => {
+      router.push(`/${route.params.id}/accuracy`)
+    })
+  }
 }
 </script>
 

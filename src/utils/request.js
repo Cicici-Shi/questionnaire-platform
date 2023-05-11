@@ -21,7 +21,7 @@ request.interceptors.response.use(
   function (res) {
     setTimeout(() => {
       store.stopLoading()
-    }, 300)
+    }, 500)
     return res.data
   },
   function (err) {

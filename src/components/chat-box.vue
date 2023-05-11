@@ -39,21 +39,18 @@
           <p v-if="type === 'consultant'" style="color: #777; font-size: 0.6em">
             {{ explain }}
           </p>
-          <template v-if="done">
-            <div>{{ result }}</div></template
-          ><template v-else>
-            <van-radio-group v-if="type === 'radio'" v-model="data">
-              <van-radio
-                v-for="choice in content"
-                :key="choice"
-                :name="choice"
-                >{{ choice }}</van-radio
-              >
-            </van-radio-group>
-            <van-cell-group v-if="type === 'input'" inset>
-              <van-field v-model="data" placeholder="请输入" />
-            </van-cell-group>
-          </template>
+          <van-radio-group v-if="type === 'radio'" v-model="data">
+            <van-radio
+              :disabled="done"
+              v-for="choice in content"
+              :key="choice"
+              :name="choice"
+              >{{ choice }}</van-radio
+            >
+          </van-radio-group>
+          <van-cell-group v-if="type === 'input'" inset>
+            <van-field v-model="data" placeholder="请输入" :disabled="done" />
+          </van-cell-group>
 
           <van-button
             class="next"
@@ -103,7 +100,7 @@ const emit = defineEmits(['newBtnClick', 'resultChange'])
 onBeforeMount(() => {
   data.value = props.result
 })
-let data = ref('')
+let data = ref(props.result ?? '')
 let name = [1, 4, 5].includes(parseInt(route.params.id))
   ? '投资顾问王经理'
   : [2, 6, 7].includes(parseInt(route.params.id))

@@ -115,19 +115,17 @@ onBeforeMount(() => {
       }
       if (res[1].questionResult[0]) {
         done.value = res[1].questionResult[0].done
-        if (!done.value) {
-          setTimeout(function () {
-            scrollToBottom()
-          }, 1000)
-        }
       }
-      if (res[1].questionResult[0] && res[1].questionResult[0].done) {
+      if (res[1].questionResult[0]?.done) {
         disable.value = true
         questionList.forEach(function (obj) {
           currentChat.value.push(...obj.chat)
         })
       } else {
-        if (res[1].questionResult[0] && res[1].questionResult[0].resultDetail.length) {
+        if (
+          res[1].questionResult[0] &&
+          res[1].questionResult[0].resultDetail.length
+        ) {
           const maxItem = res[1].questionResult[0].resultDetail.reduce(
             (prev, curr) => {
               return prev[currentId] > curr[currentId] ? prev : curr
@@ -150,6 +148,11 @@ onBeforeMount(() => {
 })
 onMounted(() => {
   store.stopLoading()
+  if (!done.value) {
+    setTimeout(function () {
+      scrollToBottom()
+    }, 500)
+  }
 })
 let handleNewData = () => {
   if (current.value === chatConfig.length - 1) {
@@ -188,39 +191,46 @@ const router = useRouter()
 const route = useRoute()
 const questionNaireId = route.params.id
 
-const saveData = () => {
+const saveData = async () => {
   store.startLoading()
-  submitAPI('question', result.value, false, questionNaireId).then(
-    () => {
-      if (specicalQuestionList.includes(questionNaireId) && isChat2()) {
-        router.push('/' + questionNaireId + '/chat')
-      } else {
-        router.push('/' + questionNaireId + '/consultant')
+  if (done.value) {
+    await router.push('/' + questionNaireId + '/consultant')
+    store.startLoading()
+  } else {
+    submitAPI('question', result.value, false, questionNaireId).then(
+      async () => {
+        await router.push('/' + questionNaireId + '/consultant')
+        store.startLoading()
+      },
+      () => {
+        store.stopLoading()
       }
-    },
-    () => {
-      store.stopLoading()
-    }
-  )
+    )
+  }
 }
 
 const submit = () => {
-  store.startLoading()
-  submitAPI('question', result.value, true, questionNaireId).then(
-    async () => {
-      console.log('include : ', specicalQuestionList.includes(questionNaireId))
-      console.log('isChat2 : ', !isChat2())
-      if (specicalQuestionList.includes(questionNaireId) && !isChat2()) {
-        await router.push('/' + questionNaireId + '/chat2')
-        location.reload()
-      } else {
-        router.push(`/${route.params.id}/accuracy`)
+  if (done.value) {
+    navToNextPage()
+  } else {
+    store.startLoading()
+    submitAPI('question', result.value, true, questionNaireId).then(
+      async () => {
+        await navToNextPage()
+      },
+      () => {
+        store.stopLoading()
       }
-    },
-    () => {
-      store.stopLoading()
-    }
-  )
+    )
+  }
+}
+const navToNextPage = async () => {
+  if (specicalQuestionList.includes(questionNaireId) && !isChat2()) {
+    await router.push('/' + questionNaireId + '/chat2')
+    store.startLoading()
+  } else {
+    router.push(`/${route.params.id}/accuracy`)
+  }
 }
 </script>
 

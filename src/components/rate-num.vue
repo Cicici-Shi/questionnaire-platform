@@ -7,8 +7,8 @@
         :key="n"
         class="num-item"
         :value="modelValue"
-        @click="handleClick(n)"
-        :class="{ checked: modelValue === n }"
+        @click="!disabled ? handleClick(n) : () => {}"
+        :class="{ checked: modelValue === n, disabled: disabled }"
       >
         {{ start + n }}
       </div>
@@ -27,7 +27,8 @@ const props = defineProps({
   latter: String,
   start: Number,
   range: Number,
-  label: String
+  label: String,
+  disabled: Boolean
 })
 const emit = defineEmits(['update:modelValue'])
 const handleClick = (n) => {
@@ -57,6 +58,15 @@ const handleClick = (n) => {
   background-color: #5997e9;
   color: #fff;
   border: 1px solid #5997e9;
+}
+.disabled {
+  background-color: rgba(235, 237, 240, 0.7);
+  color: grey;
+}
+.checked.disabled {
+  background-color: rgba(90, 151, 232, 0.9);
+  border: 1px solid #5997e9;
+  color: white;
 }
 .desc {
   display: flex;

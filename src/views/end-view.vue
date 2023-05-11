@@ -5,7 +5,14 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted } from 'vue'
+import { useLoadingStore } from '@/store'
+const store = useLoadingStore()
+onMounted(() => {
+  store.stopLoading()
+})
+</script>
 
 <style scoped lang="less">
 div {

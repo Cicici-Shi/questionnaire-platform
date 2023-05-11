@@ -21,12 +21,7 @@
       ></ChatBox>
     </div>
     <footer class="footer-button">
-      <van-button
-        type="primary"
-        :to="'/' + route.params.id + '/consultant'"
-        @click="saveData"
-        >上一页</van-button
-      >
+      <van-button type="primary" @click="saveData">上一页</van-button>
       <van-button v-if="disable" type="primary" @click="submit"
         >下一页</van-button
       >
@@ -40,7 +35,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
 import { useLoadingStore } from '@/store'
-import { specicalQuestionList, isChat2 } from '@/utils'
+import { isChat2 } from '@/utils'
 const chatConfig = []
 let current = ref(0)
 let currentChat = ref([])
@@ -50,106 +45,108 @@ const url = ref(location.href)
 let done = ref(false)
 let currentResultId = 0
 let currentId = isChat2() ? 'question2Id' : 'questionId'
-onBeforeMount(() => {
+onBeforeMount(async () => {
   store.startLoading()
-  getQuestionAPI(isChat2() ? 'question2' : 'question', route.params.id).then(
-    (res) => {
-      const questionList = (isChat2() ? res[1].question2 : res[1].question).map(
-        (item) => {
-          let data = {
-            id: item.id,
-            chat: [
-              {
-                type: 'consultant',
-                content: item.content,
-                img: item.img
-              },
-              {
-                type: item.answerType,
-                content: item.anwerContent,
-                id: item.id,
-                advise: item.advise
-              }
-            ]
-          }
-          if (item.explain) {
-            data.chat[0].explain = item.explain
-          }
-          if (item.anwerContent) {
-            data.chat[1].content = JSON.parse(item.anwerContent).map((str) =>
-              str.trim()
-            )
-          }
-          if (item.advise) {
-            data.chat[1].type = 'consultant'
-          }
-          return data
+  await getQuestionAPI(
+    isChat2() ? 'question2' : 'question',
+    route.params.id
+  ).then((res) => {
+    const questionList = (isChat2() ? res[1].question2 : res[1].question).map(
+      (item) => {
+        let data = {
+          id: item.id,
+          chat: [
+            {
+              type: 'consultant',
+              content: item.content,
+              img: item.img
+            },
+            {
+              type: item.answerType,
+              content: item.anwerContent,
+              id: item.id,
+              advise: item.advise
+            }
+          ]
         }
-      )
-      for (let i = 0; i < questionList.length; i++) {
-        if (
-          questionList[i].chat[questionList[i].chat.length - 1].type === null
-        ) {
-          let formatChat = questionList[i].chat.slice(
-            0,
-            questionList[i].chat.length - 1
+        if (item.explain) {
+          data.chat[0].explain = item.explain
+        }
+        if (item.anwerContent) {
+          data.chat[1].content = JSON.parse(item.anwerContent).map((str) =>
+            str.trim()
           )
-          if (i + 1 >= questionList.length) {
-            questionList.splice(i, 1)
-            break
-          }
-          questionList[i + 1].chat.unshift(...formatChat)
+        }
+        if (item.advise) {
+          data.chat[1].type = 'consultant'
+        }
+        return data
+      }
+    )
+    for (let i = 0; i < questionList.length; i++) {
+      if (questionList[i].chat[questionList[i].chat.length - 1].type === null) {
+        let formatChat = questionList[i].chat.slice(
+          0,
+          questionList[i].chat.length - 1
+        )
+        if (i + 1 >= questionList.length) {
           questionList.splice(i, 1)
-          i--
+          break
         }
-      }
-      if (res[1].question2Result.length) {
-        res[1].question2Result[0].resultDetail.forEach((result) => {
-          currentResultId = Math.max(result[currentId], currentResultId)
-          const question = questionList.find((q) => q.id === result[currentId])
-
-          if (question) {
-            question.chat[question.chat.length - 1].result = result.answer
-          }
-        })
-      }
-      if (res[1].question2Result[0]) {
-        done.value = res[1].question2Result[0].done
-        if (!done.value) {
-          setTimeout(function () {
-            scrollToBottom()
-          }, 1000)
-        }
-      }
-      if (res[1].question2Result[0] && res[1].question2Result[0].done) {
-        disable.value = true
-        questionList.forEach(function (obj) {
-          currentChat.value.push(...obj.chat)
-        })
-      } else {
-        if (res[1].question2Result[0] && res[1].question2Result[0].resultDetail.length) {
-          const maxItem = res[1].question2Result[0].resultDetail.reduce(
-            (prev, curr) => {
-              return prev[currentId] > curr[currentId] ? prev : curr
-            }
-          )
-          for (let i = 0; i < questionList.length; i++) {
-            if (questionList[i].id <= maxItem[currentId] + 1) {
-              currentChat.value.push(...questionList[i].chat)
-              current.value = i
-            }
-          }
-        } else {
-          currentChat.value.push(...questionList[0].chat)
-        }
-
-        chatConfig.push(...questionList)
+        questionList[i + 1].chat.unshift(...formatChat)
+        questionList.splice(i, 1)
+        i--
       }
     }
-  )
+    if (res[1].question2Result.length) {
+      res[1].question2Result[0].resultDetail.forEach((result) => {
+        currentResultId = Math.max(result[currentId], currentResultId)
+        const question = questionList.find((q) => q.id === result[currentId])
+
+        if (question) {
+          question.chat[question.chat.length - 1].result = result.answer
+        }
+      })
+    }
+    if (res[1].question2Result[0]) {
+      done.value = res[1].question2Result[0].done
+    }
+    if (res[1].question2Result[0]?.done) {
+      disable.value = true
+      questionList.forEach(function (obj) {
+        currentChat.value.push(...obj.chat)
+      })
+    } else {
+      if (
+        res[1].question2Result[0] &&
+        res[1].question2Result[0].resultDetail.length
+      ) {
+        const maxItem = res[1].question2Result[0].resultDetail.reduce(
+          (prev, curr) => {
+            return prev[currentId] > curr[currentId] ? prev : curr
+          }
+        )
+        for (let i = 0; i < questionList.length; i++) {
+          if (questionList[i].id <= maxItem['questionId']) {
+            currentChat.value.push(...questionList[i].chat)
+            current.value = i
+          }
+        }
+      } else {
+        currentChat.value.push(...questionList[0].chat)
+      }
+
+      chatConfig.push(...questionList)
+    }
+  })
+  store.stopLoading()
 })
 onMounted(() => {
-  store.stopLoading()
+  if (!done.value) {
+    setTimeout(function () {
+      scrollToBottom()
+    }, 500)
+  }
 })
 let handleNewData = () => {
   if (current.value === chatConfig.length - 1) {
@@ -190,37 +187,54 @@ const questionNaireId = route.params.id
 
 const saveData = () => {
   store.startLoading()
-  submitAPI('question2', result.value, false, questionNaireId).then(
-    () => {
-      if (specicalQuestionList.includes(questionNaireId) && isChat2()) {
+  if (done.value) {
+    router.push('/' + questionNaireId + '/chat')
+  } else {
+    submitAPI(
+      'question2',
+      result.value.map((item) => {
+        return {
+          ...item,
+          answer: 'null'
+        }
+      }),
+      false,
+      questionNaireId
+    ).then(
+      () => {
         router.push('/' + questionNaireId + '/chat')
-      } else {
-        router.push('/' + questionNaireId + '/consultant')
+      },
+      () => {
+        store.stopLoading()
       }
-    },
-    () => {
-      store.stopLoading()
-    }
-  )
+    )
+  }
 }
 
 const submit = () => {
-  store.startLoading()
-  submitAPI('question2', result.value, true, questionNaireId).then(
-    async () => {
-      console.log('include : ', specicalQuestionList.includes(questionNaireId))
-      console.log('isChat2 : ', !isChat2())
-      if (specicalQuestionList.includes(questionNaireId) && !isChat2()) {
-        await router.push('/' + questionNaireId + '/chat2')
-        location.reload()
-      } else {
+  if (done.value) {
+    router.push(`/${route.params.id}/accuracy`)
+  } else {
+    store.startLoading()
+    submitAPI(
+      'question2',
+      result.value.map((item) => {
+        return {
+          ...item,
+          answer: 'null'
+        }
+      }),
+      true,
+      questionNaireId
+    ).then(
+      async () => {
         router.push(`/${route.params.id}/accuracy`)
+      },
+      () => {
+        store.stopLoading()
       }
-    },
-    () => {
-      store.stopLoading()
-    }
-  )
+    )
+  }
 }
 </script>
 
