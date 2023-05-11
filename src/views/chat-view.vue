@@ -19,12 +19,7 @@
       ></ChatBox>
     </div>
     <footer class="footer-button">
-      <van-button
-        type="primary"
-        :to="'/' + route.params.id + '/consultant'"
-        @click="saveData"
-        >上一页</van-button
-      >
+      <van-button type="primary" @click="saveData">上一页</van-button>
       <van-button v-if="disable" type="primary" @click="submit"
         >下一页</van-button
       >
@@ -47,7 +42,6 @@ const store = useLoadingStore()
 const url = ref(location.href)
 onBeforeMount(() => {
   store.startLoading()
-  console.log('isChat2() : ', isChat2())
   getQuestionAPI(isChat2() ? 'question2' : 'question', route.params.id).then(
     (res) => {
       const questionList = (isChat2() ? res[1].question2 : res[1].question).map(
