@@ -1,5 +1,5 @@
 <template>
-  <div id="chatContainer">
+  <div id="chatContainer" :key="url">
     <section class="top name">HMS Investments</section>
     <div
       class="chat"
@@ -44,6 +44,7 @@ let current = ref(0)
 let currentChat = ref([])
 const disable = ref(false)
 const store = useLoadingStore()
+const url = ref(location.href)
 onBeforeMount(() => {
   store.startLoading()
   console.log('isChat2() : ', isChat2())
@@ -163,11 +164,12 @@ const saveData = () => {
 const submit = () => {
   store.startLoading()
   submitAPI('question', result.value, true, questionNaireId).then(
-    () => {
+    async () => {
       console.log('include : ', specicalQuestionList.includes(questionNaireId))
       console.log('isChat2 : ', !isChat2())
       if (specicalQuestionList.includes(questionNaireId) && !isChat2()) {
-        router.push('/' + questionNaireId + '/chat2')
+        await router.push('/' + questionNaireId + '/chat2')
+        location.reload()
       } else {
         router.push(`/${route.params.id}/accuracy`)
       }
