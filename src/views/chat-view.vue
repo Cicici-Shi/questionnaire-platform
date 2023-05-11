@@ -46,38 +46,41 @@ const disable = ref(false)
 const store = useLoadingStore()
 onBeforeMount(() => {
   store.startLoading()
-  getQuestionAPI(isChat2() ? 'question' : 'question2', route.params.id).then(
+  console.log('isChat2() : ', isChat2())
+  getQuestionAPI(isChat2() ? 'question2' : 'question', route.params.id).then(
     (res) => {
-      const questionList = res[1].question.map((item) => {
-        let data = {
-          id: item.id,
-          chat: [
-            {
-              type: 'consultant',
-              content: item.content,
-              img: item.img
-            },
-            {
-              type: item.answerType,
-              content: item.anwerContent,
-              id: item.id,
-              advise: item.advise
-            }
-          ]
+      const questionList = (isChat2() ? res[1].question2 : res[1].question).map(
+        (item) => {
+          let data = {
+            id: item.id,
+            chat: [
+              {
+                type: 'consultant',
+                content: item.content,
+                img: item.img
+              },
+              {
+                type: item.answerType,
+                content: item.anwerContent,
+                id: item.id,
+                advise: item.advise
+              }
+            ]
+          }
+          if (item.explain) {
+            data.chat[0].explain = item.explain
+          }
+          if (item.anwerContent) {
+            data.chat[1].content = JSON.parse(item.anwerContent).map((str) =>
+              str.trim()
+            )
+          }
+          if (item.advise) {
+            data.chat[1].type = 'consultant'
+          }
+          return data
         }
-        if (item.explain) {
-          data.chat[0].explain = item.explain
-        }
-        if (item.anwerContent) {
-          data.chat[1].content = JSON.parse(item.anwerContent).map((str) =>
-            str.trim()
-          )
-        }
-        if (item.advise) {
-          data.chat[1].type = 'consultant'
-        }
-        return data
-      })
+      )
       for (let i = 0; i < questionList.length; i++) {
         if (
           questionList[i].chat[questionList[i].chat.length - 1].type === null
@@ -161,6 +164,8 @@ const submit = () => {
   store.startLoading()
   submitAPI('question', result.value, true, questionNaireId).then(
     () => {
+      console.log('include : ', specicalQuestionList.includes(questionNaireId))
+      console.log('isChat2 : ', !isChat2())
       if (specicalQuestionList.includes(questionNaireId) && !isChat2()) {
         router.push('/' + questionNaireId + '/chat2')
       } else {
