@@ -21,23 +21,23 @@ const routes = [
   },
   {
     path: '/:id/chat2',
-    component: () => import('../views/chat-view.vue'),
-    meta: { index: 3 }
+    component: () => import('../views/chat2-view.vue'),
+    meta: { index: 4 }
   },
   {
     path: '/:id/accuracy',
     component: () => import('../views/accuracy-view.vue'),
-    meta: { index: 4 }
+    meta: { index: 5 }
   },
   {
     path: '/:id/info',
     component: () => import('../views/info-view.vue'),
-    meta: { index: 5 }
+    meta: { index: 6 }
   },
   {
     path: '/:id/end',
     component: () => import('../views/end-view.vue'),
-    meta: { index: 6 }
+    meta: { index: 7 }
   }
 ]
 export default routes

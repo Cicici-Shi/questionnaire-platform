@@ -103,7 +103,7 @@ onBeforeMount(() => {
           i--
         }
       }
-      if (res[1].questionResult[0]) {
+      if (res[1].questionResult.length) {
         res[1].questionResult[0].resultDetail.forEach((result) => {
           currentResultId = Math.max(result[currentId], currentResultId)
           const question = questionList.find((q) => q.id === result[currentId])
@@ -113,21 +113,21 @@ onBeforeMount(() => {
           }
         })
       }
-
-      if (res[1].questionResult[0] && res[1].questionResult[0].done) {
+      if (res[1].questionResult[0]) {
         done.value = res[1].questionResult[0].done
-        disable.value = true
-
         if (!done.value) {
           setTimeout(function () {
             scrollToBottom()
           }, 1000)
         }
+      }
+      if (res[1].questionResult[0] && res[1].questionResult[0].done) {
+        disable.value = true
         questionList.forEach(function (obj) {
           currentChat.value.push(...obj.chat)
         })
       } else {
-        if (res[1].questionResult[0]) {
+        if (res[1].questionResult[0] && res[1].questionResult[0].resultDetail.length) {
           const maxItem = res[1].questionResult[0].resultDetail.reduce(
             (prev, curr) => {
               return prev[currentId] > curr[currentId] ? prev : curr
