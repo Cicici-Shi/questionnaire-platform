@@ -148,3 +148,7 @@ button:focus-visible {
   width: 100%;
   left: 0;
 }
+
+.result-box {
+  margin:10px 0;
+}

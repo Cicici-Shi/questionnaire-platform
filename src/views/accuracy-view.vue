@@ -4,7 +4,42 @@
     <p style="text-indent: 2em; font-weight: 700">
       投资顾问对您的服务已经结束。因为研究中需要了解您刚刚填写的“用于评估风险承受程度的个人信息”的真实程度如何，所以请您就以上回答的真实程度逐一做出评价:
     </p>
-    <van-form @submit="onSubmit">
+    <template v-if="done">
+      <div class="result-box" v-for="item in accuracyConfig" :key="item.stem">
+        <template v-if="item.type == 'multi'">
+          <div class="label" style="font-weight: 700">{{ item.stem.main }}</div>
+          <div
+            class="little"
+            v-for="(obj, index) in item.stem.littles"
+            :key="obj.stem"
+          >
+            {{ obj.stem }}
+            <div class="result">{{ JSON.parse(item.result)[index] }}</div>
+          </div>
+        </template>
+        <template v-else>
+          <div class="label" style="font-weight: 700">{{ item.stem }}</div>
+          <div class="result">{{ item.result }}</div>
+        </template>
+        <div style="margin-top: 16px" class="footer-button">
+          <van-button
+            block
+            type="primary"
+            :to="'/' + route.params.id + '/chat'"
+          >
+            上一页
+          </van-button>
+          <van-button
+            block
+            type="primary"
+            :to="'/' + route.params.id + '/info'"
+          >
+            下一页
+          </van-button>
+        </div>
+      </div>
+    </template>
+    <van-form v-else @submit="onSubmit">
       <van-cell-group inset>
         <template v-for="(item, index) in accuracyConfig" :key="item.stem">
           <van-field
@@ -101,6 +136,8 @@ let isNew = ref(true)
 let errMsg = ref([])
 let indexes = ref([])
 let multiValue = ref(Array(3).fill(null))
+let done = ref(false)
+
 const isEmpty = computed(() => multiValue.value.some((value) => value == null))
 const isSumTen = computed(
   () => multiValue.value.reduce((acc, value) => acc + value, 0) === 10
@@ -109,6 +146,10 @@ const isSumTen = computed(
 onBeforeMount(async () => {
   window.scrollTo(0, 0)
   await getQuestionAPI('accuracy', route.params.id).then((res) => {
+    done.value =
+      res[1].accuracyResult &&
+      res[1].accuracyResult[0] &&
+      res[1].accuracyResult[0].done
     accuracyConfig.value = res[1].accuracy.map((item) => {
       let data = {
         stem: item.stem,
@@ -127,18 +168,27 @@ onBeforeMount(async () => {
       }
       return data
     })
-  })
-  indexes.value = accuracyConfig.value.reduce((acc, obj, index) => {
-    if (obj.type == 'multi') {
-      acc.push(index)
+    indexes.value = accuracyConfig.value.reduce((acc, obj, index) => {
+      if (obj.type == 'multi') {
+        acc.push(index)
+      }
+      return acc
+    }, [])
+    if (done.value) {
+      accuracyConfig.value.forEach((item) => {
+        const accuracy = res[1].accuracyResult[0].resultDetail.find((a) => {
+          if(a.accuracyQuestionId === item.id) return a
+        })
+        item.result = accuracy.answer
+      })
+    } else {
+      value.value = Array(accuracyConfig.value.length).fill(null)
+      indexes.value.forEach((x) => {
+        value.value[x] = Array(3).fill(null)
+      })
+      errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
     }
-    return acc
-  }, [])
-  value.value = Array(accuracyConfig.value.length).fill(null)
-  indexes.value.forEach((x) => {
-    value.value[x] = Array(3).fill(null)
   })
-  errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
 })
 
 const router = useRouter()

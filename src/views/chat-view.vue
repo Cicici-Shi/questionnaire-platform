@@ -14,12 +14,19 @@
         :img="item.img"
         :explain="item.explain"
         :id="item.id"
+        :done="done"
+        :result="item.result"
         @newBtnClick="handleNewData"
         @resultChange="handleResult"
       ></ChatBox>
     </div>
     <footer class="footer-button">
-      <van-button type="primary" @click="saveData">上一页</van-button>
+      <van-button
+        type="primary"
+        :to="'/' + route.params.id + '/consultant'"
+        @click="saveData"
+        >上一页</van-button
+      >
       <van-button v-if="disable" type="primary" @click="submit"
         >下一页</van-button
       >
@@ -40,6 +47,9 @@ let currentChat = ref([])
 const disable = ref(false)
 const store = useLoadingStore()
 const url = ref(location.href)
+let done = ref(false)
+let currentResultId = 0
+let currentId = isChat2() ? 'question2Id' : 'questionId'
 onBeforeMount(() => {
   store.startLoading()
   getQuestionAPI(isChat2() ? 'question2' : 'question', route.params.id).then(
@@ -93,15 +103,54 @@ onBeforeMount(() => {
           i--
         }
       }
-      currentChat.value.push(...questionList[0].chat)
-      chatConfig.push(...questionList)
+      if (res[1].questionResult[0]) {
+        res[1].questionResult[0].resultDetail.forEach((result) => {
+          currentResultId = Math.max(result[currentId], currentResultId)
+          const question = questionList.find((q) => q.id === result[currentId])
+
+          if (question) {
+            question.chat[question.chat.length - 1].result = result.answer
+          }
+        })
+      }
+
+      if (res[1].questionResult[0] && res[1].questionResult[0].done) {
+        done.value = res[1].questionResult[0].done
+        disable.value = true
+
+        if (!done.value) {
+          setTimeout(function () {
+            scrollToBottom()
+          }, 1000)
+        }
+        questionList.forEach(function (obj) {
+          currentChat.value.push(...obj.chat)
+        })
+      } else {
+        if (res[1].questionResult[0]) {
+          const maxItem = res[1].questionResult[0].resultDetail.reduce(
+            (prev, curr) => {
+              return prev[currentId] > curr[currentId] ? prev : curr
+            }
+          )
+          for (let i = 0; i < questionList.length; i++) {
+            if (questionList[i].id <= maxItem[currentId] + 1) {
+              currentChat.value.push(...questionList[i].chat)
+              current.value = i
+            }
+          }
+        } else {
+          currentChat.value.push(...questionList[0].chat)
+        }
+
+        chatConfig.push(...questionList)
+      }
     }
   )
 })
 onMounted(() => {
   store.stopLoading()
 })
-
 let handleNewData = () => {
   if (current.value === chatConfig.length - 1) {
     disable.value = true
@@ -127,11 +176,11 @@ let handleNewData = () => {
 let result = ref([])
 let handleResult = (resultItem) => {
   const index = result.value.findIndex(
-    (item) => item.questionId === resultItem.questionId
+    (item) => item[currentId] === resultItem[currentId]
   )
   if (index !== -1) {
     result.value[index] = resultItem
-  } else {
+  } else if (resultItem.answer) {
     result.value.push(resultItem)
   }
 }
