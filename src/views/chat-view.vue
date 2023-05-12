@@ -41,6 +41,7 @@ import { getQuestionAPI, submitAPI } from '@/services/main'
 import { scrollToBottom } from '@/utils/scroll'
 import { useLoadingStore } from '@/store'
 import { specicalQuestionList, isChat2 } from '@/utils'
+
 const chatConfig = []
 let current = ref(0)
 let currentChat = ref([])
@@ -50,6 +51,8 @@ const url = ref(location.href)
 let done = ref(false)
 let currentResultId = 0
 let currentId = isChat2() ? 'question2Id' : 'questionId'
+const hasResultDetail = ref(false)
+const firstCharList = ref([])
 onBeforeMount(() => {
   store.startLoading()
   getQuestionAPI(isChat2() ? 'question2' : 'question', route.params.id).then(
@@ -95,7 +98,7 @@ onBeforeMount(() => {
             questionList[i].chat.length - 1
           )
           if (i + 1 >= questionList.length) {
-            questionList.splice(i, 1)
+            questionList[i].chat.pop()
             break
           }
           questionList[i + 1].chat.unshift(...formatChat)
@@ -107,7 +110,6 @@ onBeforeMount(() => {
         res[1].questionResult[0].resultDetail.forEach((result) => {
           currentResultId = Math.max(result[currentId], currentResultId)
           const question = questionList.find((q) => q.id === result[currentId])
-
           if (question) {
             question.chat[question.chat.length - 1].result = result.answer
           }
@@ -122,10 +124,12 @@ onBeforeMount(() => {
           currentChat.value.push(...obj.chat)
         })
       } else {
-        if (
-          res[1].questionResult[0] &&
-          res[1].questionResult[0].resultDetail.length
-        ) {
+        if (res[1].questionResult[0]?.resultDetail.length == 19) {
+          disable.value = true
+        }
+        hasResultDetail.value =
+          res[1].questionResult[0]?.resultDetail.length > 0
+        if (res[1].questionResult[0]?.resultDetail.length) {
           const maxItem = res[1].questionResult[0].resultDetail.reduce(
             (prev, curr) => {
               return prev[currentId] > curr[currentId] ? prev : curr
@@ -138,14 +142,17 @@ onBeforeMount(() => {
             }
           }
         } else {
-          currentChat.value.push(...questionList[0].chat)
+          firstCharList.value = questionList[0].chat
+          // currentChat.value.push(...questionList[0].chat)
+          // console.log('questionList : ', questionList)
         }
-
         chatConfig.push(...questionList)
+        recoverData(res[1].questionResult)
       }
     }
   )
 })
+
 onMounted(() => {
   store.stopLoading()
   if (!done.value) {
@@ -153,16 +160,30 @@ onMounted(() => {
       scrollToBottom()
     }, 500)
   }
-})
-let handleNewData = () => {
-  if (current.value === chatConfig.length - 1) {
-    disable.value = true
-    return
+  if (!hasResultDetail.value) {
+    let i = 0
+    let intervalId = setInterval(() => {
+      if (i >= firstCharList.value.length) {
+        clearInterval(intervalId)
+        return
+      }
+      currentChat.value.push(firstCharList.value[i])
+      console.log(currentChat.value)
+      i++
+      nextTick(() => {
+        scrollToBottom()
+      })
+    }, 1500)
   }
+})
 
+let handleNewData = () => {
   current.value++
-
-  let i = 0
+  currentChat.value.push(chatConfig[current.value].chat[0])
+  nextTick(() => {
+    scrollToBottom()
+  })
+  let i = 1
   let intervalId = setInterval(() => {
     if (i >= chatConfig[current.value].chat.length) {
       clearInterval(intervalId)
@@ -173,7 +194,13 @@ let handleNewData = () => {
     nextTick(() => {
       scrollToBottom()
     })
-  }, 200)
+  }, 1000)
+  if (current.value === chatConfig.length - 1) {
+    setTimeout(() => {
+      disable.value = true
+      return
+    }, 200)
+  }
 }
 
 let result = ref([])
@@ -187,6 +214,7 @@ let handleResult = (resultItem) => {
     result.value.push(resultItem)
   }
 }
+
 const router = useRouter()
 const route = useRoute()
 const questionNaireId = route.params.id
@@ -230,6 +258,32 @@ const navToNextPage = async () => {
     store.startLoading()
   } else {
     router.push(`/${route.params.id}/accuracy`)
+  }
+}
+
+const recoverData = (resultlist) => {
+  if (resultlist.length) {
+    const answerObjList = resultlist[0].resultDetail
+    const questionAnswerMap = new Map()
+    answerObjList.forEach((ansObj) => {
+      questionAnswerMap.set(ansObj.questionId, ansObj.answer)
+    })
+
+    const tempvalue = []
+    chatConfig.forEach((config, index) => {
+      const questionId = config.id
+      if (questionAnswerMap.has(questionId)) {
+        if (config.type == 'rate') {
+          tempvalue[index] = parseInt(questionAnswerMap.get(questionId))
+        } else {
+          tempvalue[index] = {
+            questionId,
+            answer: questionAnswerMap.get(questionId)
+          }
+        }
+      }
+    })
+    result.value = tempvalue
   }
 }
 </script>

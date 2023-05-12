@@ -154,11 +154,6 @@ onBeforeMount(async () => {
         item.result = accuracy.answer
       })
     } else {
-      // value.value = Array(accuracyConfig.value.length).fill(null)
-      // indexes.value.forEach((x) => {
-      //   value.value[x] = Array(3).fill(null)
-      // })
-      console.log(value.value)
       errMsg.value = ref(Array(accuracyConfig.value.length).fill(''))
     }
     recoverData(res[1].accuracyResult)
@@ -190,11 +185,12 @@ const onSubmit = () => {
   if (done.value) {
     router.push(`/${route.params.id}/info`)
   } else {
-    checkForm()
-    result.value = wrapResult()
-    submitAPI('accuracy', result.value, true, route.params.id).then(() => {
-      router.push(`/${route.params.id}/info`)
-    })
+    if (checkForm()) {
+      result.value = wrapResult()
+      submitAPI('accuracy', result.value, true, route.params.id).then(() => {
+        router.push(`/${route.params.id}/info`)
+      })
+    }
   }
 }
 
@@ -226,28 +222,33 @@ const wrapResult = () => {
   const tempResult = []
   for (let index = 0; index < value.value.length; index++) {
     const item = value.value[index]
-    tempResult[index] = {
-      questionId: accuracyConfig.value[index].id,
-      answer:
-        typeof item === 'string' || typeof item === 'number'
-          ? item
-          : JSON.stringify(multiValue.value)
-    }
+    const questionType = accuracyConfig.value[index].type
+    tempResult[index] =
+      questionType !== 'multi'
+        ? item
+          ? {
+              questionId: accuracyConfig.value[index].id,
+              answer: item
+            }
+          : null
+        : multiValue.value
+        ? {
+            questionId: accuracyConfig.value[index].id,
+            answer: JSON.stringify(multiValue.value)
+          }
+        : null
   }
-  return tempResult
+  return tempResult.filter((item) => !!item)
 }
 
 const checkForm = () => {
-  for (let i = 0; i < accuracyConfig.value.length; i++) {
-    if (accuracyConfig.value[i].type === 'rate' && !value.value[i]) {
-      console.log('请完整输入表单')
-      return
+  return accuracyConfig.value.every((config, index) => {
+    if (config.type === 'multi' && isSumTen.value) {
+      return true
+    } else if (value.value[index]) {
+      return true
     }
-    if (accuracyConfig.value[i].type === 'multi' && !isSumTen.value) {
-      console.log('总和须等于10')
-      return
-    }
-  }
+  })
 }
 </script>
 

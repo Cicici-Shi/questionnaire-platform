@@ -163,7 +163,6 @@ const onSubmit = () => {
   } else {
     for (let i = 0; i < infoConfig.value.length; i++) {
       if (infoConfig.value[i].type === 'rate' && !value.value[i]) {
-        console.log('请完整输入表单')
         return
       }
     }

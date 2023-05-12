@@ -3,7 +3,7 @@
     <p style="text-indent: 2em; font-weight: 700">
       {{ consultant.content1 }}
     </p>
-    <img :src="'/assets/' + consultant.img" />
+    <img :src="consultant.img" />
     <p style="text-indent: 2em; font-weight: 700">
       {{ consultant.content2 }}
     </p>
@@ -31,7 +31,10 @@ onBeforeMount(async () => {
     const consultantInfo = res[1].consultant
     const content1 = consultantInfo.content1
     const content2 = consultantInfo.content2
-    const img = consultantInfo.img
+    const img =
+      consultantInfo.img?.indexOf('http') > -1
+        ? consultantInfo.img
+        : '/assets/' + consultantInfo.img
     consultant.value = {
       content1,
       content2,

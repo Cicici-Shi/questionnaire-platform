@@ -168,6 +168,12 @@ let handleNewData = () => {
       scrollToBottom()
     })
   }, 200)
+  if (current.value === chatConfig.length - 1) {
+    setTimeout(() => {
+      disable.value = true
+      return
+    }, 200)
+  }
 }
 
 let result = ref([])

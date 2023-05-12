@@ -8,7 +8,7 @@ export function scrollToBottom (el) {
   //最终值
   let endTop = el.scrollHeight - el.clientHeight
   //生成一个动画控制函数
-  let scrollAnimationFn = doAnimation(startTop, endTop, 300, el)
+  let scrollAnimationFn = doAnimation(startTop, endTop + 60, 300, el)
   //执行动画，每10ms执行一次
   let interval = setInterval(() => {
     scrollAnimationFn(interval)
